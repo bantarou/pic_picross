@@ -24,7 +24,16 @@ class constans:
   #
   # 数字の表示に関係する定数
   #
-
+  #ヒントのフォント
+  HINT_FONT = 'fixsys'
+  #ヒントのフォントサイズ
+  HINT_FONT_SIZE = 6
+  #ヒント部分と線とのマージンの長さ
+  ROW_HINT_LINE_HEIGHT_MARGIN = 1
+  ROW_HINT_LINE_WIDTH_MARGIN = 5
+  COLUMN_HINT_LINE_HEIGHT_MARGIN = 5
+  COLUMN_HINT_LINE_WIDTH_MARGIN = 5
+  
   #ヒントとなる数字の1文字あたりの表示領域
   HINT_MARGIN_WIDTH = 5
 
