@@ -45,9 +45,11 @@ def draw_pic_hint(canvas, img, box_size, hint_width, hint_height, row_hint, colu
   #列方向のヒントの描画
   for x in range(0, len(img[0])):
     #縦書きに変換
-    hint = column_hint[x].replace(',', '\n')
-
-    canvas.create_text(hint_width + x * box_size + co.COLUMN_HINT_LINE_WIDTH_MARGIN, hint_height - co.COLUMN_HINT_LINE_HEIGHT_MARGIN, text = hint, font = (co.HINT_FONT, co.HINT_FONT_SIZE) ,anchor = tkinter.S)
+    hint = column_hint[x].split(',')
+    #Reverse処理
+    hint = hint[::-1]
+    for i in range(0, len(hint)):
+      canvas.create_text(hint_width + x * box_size + co.COLUMN_HINT_LINE_WIDTH_MARGIN, hint_height - co.COLUMN_HINT_LINE_HEIGHT_MARGIN - i * co.COLUMN_HINT_NUM_MARGIN, text = hint[i], font = (co.HINT_FONT, co.HINT_FONT_SIZE) ,anchor = tkinter.S)
 
 #GUIの制御部分
 def draw_main(img, box_size):

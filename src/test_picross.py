@@ -32,7 +32,7 @@ canny_img = cv2.Canny(gray_img, 50, 120)
 
 mosaic_img = ConvertMosaic(ORG_FILE_NAME, 2, 10, 0.0002)
 
-draw_main(mosaic_img, 10)
+draw_main(mosaic_img, 11)
 
 #
 # ウィンドウに表示
