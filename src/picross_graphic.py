@@ -6,6 +6,7 @@ import tkinter
 
 from constants import constans as co
 from picross_processing import *
+from picross_verify import *
 
 #ドットを描画する関数
 def draw_pic_dot(canvas, img, box_size, hint_width, hint_height):

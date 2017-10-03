@@ -14,7 +14,7 @@ GRAY_WINDOW_NAME = "gray"
 CANNY_WINDOW_NAME = "canny"
 MOSAIC_WINDOW_NAME = "mosaic"
 
-ORG_FILE_NAME = "../img/test1.png"
+ORG_FILE_NAME = "../img/test2.png"
 GRAY_FILE_NAME = "../img/gray.png"
 CANNY_FILE_NAME = "../img/canny.png"
 MOSAIC_FILE_NAME = "../img/mosaic.png"
@@ -26,11 +26,11 @@ org_img = cv2.imread(ORG_FILE_NAME, cv2.IMREAD_UNCHANGED)
 gray_img = cv2.imread(ORG_FILE_NAME, cv2.IMREAD_GRAYSCALE)
 
 #画像のぼかし処理
-gray_img = BlurImage(gray_img, 2)
+gray_img = blur_image(gray_img, 2)
 # エッジ抽出
 canny_img = cv2.Canny(gray_img, 50, 120)
 
-mosaic_img = ConvertMosaic(ORG_FILE_NAME, 2, 10, 0.0002)
+mosaic_img = convert_mosaic(ORG_FILE_NAME, 2, 5, 0.0002)
 
 draw_main(mosaic_img, 11)
 
