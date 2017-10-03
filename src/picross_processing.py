@@ -27,6 +27,10 @@ def calc_pic_num(img):
         if count_flag:
           str_num += str(count) + ","
           count_flag = False
+          count = 0
+
+    if count != 0:
+      str_num += str(count) + ","
 
     if str_num == "":
       row_num.append('0')
@@ -50,6 +54,10 @@ def calc_pic_num(img):
         if count_flag:
           str_num += str(count) + ","
           count_flag = False
+          count = 0
+
+    if count != 0:
+      str_num += str(count) + ","
 
     if str_num == "":
       column_num.append('0')
