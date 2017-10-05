@@ -6,7 +6,7 @@ import numpy as np
 #
 
 #ピクロスの数字を計算する関数
-def calc_pic_num(img):
+def calc_pic_hint(img):
   column_num = []
   row_num = []
 

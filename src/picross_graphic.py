@@ -56,9 +56,12 @@ def draw_pic_hint(canvas, img, box_size, hint_width, hint_height, row_hint, colu
 def draw_main(img, box_size):
 
   #ピクロスの端の部分を導出
-  row_hint, column_hint = calc_pic_num(img)
+  row_hint, column_hint = calc_pic_hint(img)
   row_num_length = calc_pic_num_length(row_hint)
   column_num_length = calc_pic_num_length(column_hint)
+
+  #ピクロスが回答可能かの検証
+  picross_verify(img, row_hint, column_hint)
 
   #ヒント部分の長さ
   hint_width = row_num_length * co.HINT_MARGIN_WIDTH
