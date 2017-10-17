@@ -2,257 +2,210 @@
 import cv2
 import numpy as np
 
-#列が完成しているかの判定
-def check_filled(tmp_boad):
-  for i in range(0, len(tmp_boad)):
-    if tmp_boad[i] == -1:
-      return False
+from constants import constans as co
 
-  return True
+#左右詰めの回答の共通部分を返す関数
+def calc_marge_part(hint, row_length, col_length):
+  tmp_num = 0
+  tmp1 = np.empty(col_length)
+  tmp2 = np.empty(col_length)
+  tmp1.fill(co.UNSOLVED_NUM)
+  tmp2.fill(co.UNSOLVED_NUM)
 
-#確定したものと合致しないものを取り除く
-def check_match(origin, now):
-  for i in range(0, len(origin)):
-    if (origin[i] == 0 and now[i] == 255) \
-      or (origin[i] == 255 and now[i] == 0):
-      return False
+  num_tmp1 = np.empty(col_length)
+  num_tmp2 = np.empty(col_length)
+  num_tmp1.fill(-1)
+  num_tmp2.fill(-1)
 
-  return True
+  for cnt in range(0, len(hint)):
+    for j in range(tmp_num, tmp_num + hint[cnt]):
+      tmp1[j] = co.FILLED_NUM
+      num_tmp1[j] = cnt
+    tmp_num += hint[cnt]
+    if tmp_num < row_length:
+      tmp1[tmp_num] = co.NO_FILLED_NUM
+      tmp_num += 1
 
-#考えられる全パターンを算出
-def calc_all_pattern(hint, tmp_boad):
-  boad_length = len(tmp_boad)
+  tmp_num = col_length
   hint_num = len(hint) - 1
-  for i in range(0, len(hint)):
-    hint_num += hint[i]
+  for cnt in range(0, len(hint)):
+    for j in range(tmp_num - hint[hint_num], tmp_num):
+      tmp2[j] = co.FILLED_NUM
+      num_tmp2[j] = hint_num
+    tmp_num -= (hint[hint_num] + 1)
+    hint_num -= 1
+    if tmp_num >= 0:
+      tmp2[tmp_num] = co.NO_FILLED_NUM
 
-  #即答できる場合
-  if boad_length == hint_num:
-    for j in range(0, len(hint)):
-      ret = np.empty(boad_length)
-      count = 0
-      if j != 0:
-        empty[count] = 255
-        count += 1
-      for k in range(count, count + hint[j]):
-        empty[k] = 0
-      count += hint[j]
-    
-    if check_match(ret, tmp_boad):
-      return ret
+  #左詰めと右詰めの共通部分かつ同じブロックに属する部分を算出
+  ans = np.empty(col_length)
+  for i in range(0, col_length):
+    if tmp1[i] == tmp2[i] and num_tmp1[i] == num_tmp2[i]:
+      ans[i] = tmp1[i]
     else:
-      ret = []
-      return ret
+      ans[i] = co.UNSOLVED_NUM
 
-  elif boad_length < hint_num:
-    return False
+  return ans
 
-  #hintが一つの場合(再帰終了)
-  if len(hint) == 1:
-    save = np.empty(boad_length)
-    if hint[0] == 0:
-      for i in range(0, boad_length):
-        save[i] = 0
-    elif hint[0] == boad_length:
-      for i in range(0, boad_length):
-        save[i] = 255
-    else:
-      #前後に空白が生じる場合
-      before_space = 0
-      before_max_space = boad_length - hint[0]
-      while before_space <= before_max_space:
-        after_space = boad_length - hint[0] - before_space
-        tmp = np.empty(boad_length)
-        for j in range(0,before_space):
-          tmp[j] = 255
-        for j in range(before_space, before_space + hint[0]):
-          tmp[j] = 0
-        for j in range(before_space + hint[0]):
-          tmp[j] = 255
-        np.append(save, tmp, axis = 0)
+#列の全てのマスが回答できる場合の処理
+def first_process(boad, row_hint, col_hint):
+  row_length = len(boad)
+  col_length = len(boad[0])
+  for i in range(0, row_length):
+    if row_hint[i][0] == 0:
+      for j in range(0, col_length):
+        boad[i][j] = co.NO_FILLED_NUM
+    if row_hint[i][0] == col_length:
+      for j in range(0, col_length):
+        boad[i][j] = co.FILLED_NUM
 
-        space += 1
-
-    ret = []
-    for i in range(0, len(save)):
-      if check_match(save[i], tmp_boad):
-        ret.append(save[i])
-
-    return ret
-
-  #hintが複数の場合(hintを減らして再帰する)
-  else:
-    space_count = 0
-    max_space_count = boad_length - hint_num
-    save = np.zeros(boad_length)
-    while space_count <= max_space_count:
-      for i in range(0, space_count):
-        save[i] = 255
-      for i in range(space_count, hint[0]):
-        save[i] = 0
-      space_count += 1
-      
-      flag = True
-      for i in range(0, hint[0] + 1):
-        if (save[i] == 0 and tmp_boad[i] == 255) or \
-          (save[i] == 255 and tmp_boad[i] == 0):
-          flag = False
-
-      if flag:
-        #ヒントを減らして再帰
-        new_hint = hint[1:]
-        new_tmp_boad = tmp_boad[hint[0] + 1:]
-        child_ret = calc_all_pattern(new_hint, new_tmp_boad)
-        if len(child_ret) > 0 and child_ret:
-          for j in range(0, len(child_ret)):
+  for j in range(0, col_length):
+    if col_hint[j][0] == 0:
+      for i in range(0, row_length):
+        boad[i][j] = co.NO_FILLED_NUM
+    if col_hint[j][0] == row_length:
+      for i in range(0, row_length):
+        boad[i][j] = co.FILLED_NUM
+  return boad
 
 
-#第一段階の処理
-def first_process(hint, length):
-  if hint[0] == 0:
-    #何も埋まらない場合
-    ret = np.empty(length)
-    return ret.fill(255)
-  elif hint[0] == length:
-    #すべてが埋まる場合
-    ret = np.zeros(length)
-    return ret
+#左右詰めにした際回答できる場合の処理
+def secound_process(boad, row_hint, col_hint):
+  row_length = len(boad)
+  col_length = len(boad[0])
 
-  total_num = len(hint) - 1
-  max_num = 0
-  for i in range(0, len(hint)):
-    total_num += hint[i]
-    if max_num < hint[i]:
-      max_num = hint[i]
+  #行方向の処理
+  for i in range(0, row_length):
+    line = calc_marge_part(row_hint[i], row_length, col_length)
 
-  #条件によって一意的に点が埋まる際の処理
-  if(total_num == length):
-    ret = np.empty(length)
-    count = 0
-    for i in range(0, len(hint)):
-      #間の点
-      if i != 0:
-        ret[count] = 255
-        count += 1
+    for j in range(0, len(line)):
+      if line[j] == co.FILLED_NUM:
+        boad[i][j] = line[j]
 
-      for cnt in range(count, count + hint[i]):
-        ret[cnt] = 0
+  #列方向の処理
+  for j in range(0, col_length):
+    line = calc_marge_part(col_hint[j], col_length, row_length)
 
-      count += hint[i]
+    for i in range(0, len(line)):
+      if line[i] == co.FILLED_NUM:
+        boad[i][j] = line[i]
 
-    return ret
+  return boad
 
-  #条件によっていくつか点が定まる際の処理
-  min_num = length - total_num
-  if min_num < max_num:
-    ret = np.empty(length)
-    ret.fill(-1)
-    count = 0
-    for i in range(0, len(hint)):
-      if i != 0:
-        ret[count] == -1
-        count += 1
-      if hint[i] > min_num:
-        for cnt in range(count, count + min_num):
-          ret[cnt] = -1
-        count += min_num
-        for cnt in range(count, count + hint[i] - min_num):
-          ret[cnt] = 0
-        count += (hint[i] - min_num)
+#上下左右の端の部分が確定する場合の処理
+def third_process(line, hint):
+  hint_cnt = 0
+  fill_count = 0
+  fill_flag = False
+  for j in range(0, len(line)):
+    if fill_flag:
+      if fill_count != 0:
+        line[j] = co.FILLED_NUM
       else:
-        for cnt in range(count, count + hint[i]):
-          ret[cnt] = -1
-
-        count += hint[i]
-    return ret
-  #何も埋まらない際の処理
-  else:
-    ret = np.empty(length)
-    ret.fill(-1)
-
-    return ret
-
-#第二段階の処理
-def secound_process(hint, tmp_boad):
-  first = 0
-  for i in range(0, len(tmp_boad)):
-    if tmp_boad[first] == -1:
+        line[j] = co.NO_FILLED_NUM
+      fill_count -= 1
+      if fill_count < 0:
+        fill_flag = False
+        hint_cnt += 1
+    elif line[j] == co.UNSOLVED_NUM:
       break
-    if tmp_boad[first] == 0:
-      for cnt in range(0, hint[0]):
-        tmp_boad[cnt] = 0
-      tmp_boad[hint[0]] = 255
+    elif line[j] == co.FILLED_NUM:
+      fill_count = hint[hint_cnt] - 1
+      fill_flag = True
+
+  hint_cnt = len(hint) - 1
+  fill_count = 0
+  fill_flag = False
+  for j in range(0, len(line))[::-1]:
+    if fill_flag:
+      if fill_count != 0:
+        line[j] = co.FILLED_NUM
+      else:
+        line[j] = co.NO_FILLED_NUM
+      fill_count -= 1
+      if fill_count < 0:
+        fill_flag = False
+        hint_cnt += 1
+    elif line[j] == co.UNSOLVED_NUM:
       break
+    elif line[j] == co.FILLED_NUM:
+      fill_count = hint[hint_cnt] - 1
+  return line
 
-    first += 1
+#フラグの初期化用関数
+def init_check(boad, row_flag, col_flag):
+  for i in range(0, len(row_flag)):
+    row_flag[i] = True
+    for j in range(0, len(col_flag)):
+      if boad[i][j] == co.UNSOLVED_NUM:
+        row_flag[i] = False
+        break
 
-  last = len(tmp_boad) - 1
-  for i in range(0, len(tmp_boad)):
-    if tmp_boad[last] != -1:
-      break
-    if tmp_boad[last] == 0:
-      for cnt in range(len(tmp_boad) - hint[last], len(tmp_boad)):
-        tmp_boad[cnt] = 0
-      tmp_boad[last - hint[last]] = 255
-      break
+  for j in range(0, len(col_flag)):
+    col_flag[j] = True
+    for i in range(0, len(row_flag)):
+      if boad[i][j] == co.UNSOLVED_NUM:
+        col_flag[j] = False
+        break
+  return row_flag, col_flag
 
-    last -= 1
+#盤面が埋まっているかの判定関数
+def filled_check(row_flag, col_flag):
+  for cnt in range(0, len(row_flag)):
+    if not row_flag[cnt]:
+      return False
+  for cnt in range(0, len(col_flag)):
+    if not col_flag[cnt]:
+      return False
+  return True
 
-  return tmp_boad
+#ピクロスを回答する関数
+def solve_picross(row_hint, col_hint, row_length, col_length):
+  #盤面
+  boad = np.zeros(shape = (row_length, col_length))
+  boad.fill(co.UNSOLVED_NUM)
 
-#三段階目の処理
-def third_process(hint, tmp_boad):
-  first = 0
+  row_flag = np.zeros(row_length, dtype = bool)
+  row_flag.fill(False)
+  col_flag = np.zeros(col_length, dtype = bool)
+  col_flag.fill(False)
 
+  #最初の処理
+  boad = first_process(boad, row_hint, col_hint)
+  #二番目の処理
+  boad = secound_process(boad, row_hint, col_hint)
+  #フラグの初期化
+  row_flag, col_flag = init_check(boad, row_flag, col_flag)
 
-#ピクロスの回答を行う関数
-def calc_solutions(img, row_hint, col_hint, row_length, col_length):
-  #ボードの情報
-  boad_data = np.empty(shape = (row_length, col_length))
-  boad_data.fill(-1)
+  while not filled_check(row_flag, col_flag):
+    #行方向の三番目の処理
+    for i in range(0, row_length):
+      if not row_flag[i]:
+        line = third_process(boad[i], row_hint[i])
 
-  #一段階目の操作
-  #行方向の捜査
+    #列方向の三番目の処理
+    for j in range(0, col_length):
+      if not col_flag[j]:
+        line = third_process(boad[:,j], col_hint[j])
+
+    break
+
+  return boad
+
+#ピクロスの確認用関数
+def picross_check(img):
+  row_length = len(img)
+  col_length = len(img[0])
+  import sys
   for i in range(0, row_length):
-    tmp = first_process(row_hint[i], row_length)
-    for cnt in range(0, len(tmp)):
-      if boad_data[i][cnt] == -1:
-        boad_data[i][cnt] = tmp[cnt]
-
-  #列方向の捜査
-  for i in range(0, col_length):
-    tmp = first_process(col_hint[i], col_length)
-    for cnt in range(0, len(tmp)):
-      if boad_data[cnt][i] == -1:
-        boad_data[cnt][i] = tmp[cnt]
-
-  #二段階目の捜査
-  #行方向の捜査
-  for i in range(0, row_length):
-    tmp = secound_process(row_hint[i], boad_data[i])
-    boad_data[i] = tmp
-
-  #列方向の捜査
-  for i in range(0, col_length):
-    tmp = secound_process(col_hint[i], boad_data[:,i])
-    boad_data[:,i] = tmp
-
-  #確定部分と未確定部分の判定
-  check_row = []
-  check_col = []
-  for i in range(0, row_length):
-    if check_filled(boad_data[i]):
-      check_row.append(True)
-    else:
-      check_row.append(False)
-
-  for i in range(0, col_length):
-    if check_filled(boad_data[:,i]):
-      check_col.append(True)
-    else:
-      check_col.append(False)
-
-  print(boad_data)
+    for j in range(0, col_length):
+      if img[i][j] == co.FILLED_NUM:
+        sys.stdout.write("o")
+      elif img[i][j] == co.NO_FILLED_NUM:
+        sys.stdout.write("x")
+      else:
+        sys.stdout.write("-")
+    sys.stdout.write("\n")
 
 
 #ピクロスが回答可能かどうかの検証用関数
@@ -274,5 +227,6 @@ def picross_verify(img, row_hint, col_hint):
     hint = list(map(int, hint))
     tmp_col_hint.append(hint)
 
-  calc_solutions(img, tmp_row_hint, tmp_col_hint, row_length, col_length)
+  solve = solve_picross(tmp_row_hint, tmp_col_hint, row_length, col_length)
+  picross_check(solve)
 

@@ -11,6 +11,20 @@ class constans:
   WINDOW_MARGIN_HEIGHT = 25
 
   #
+  #ピクロスの生成に関係する定数
+  #
+
+  #検証用関数のループ上限
+  MAX_LOOP_VERIFY = 5
+
+  #塗りつぶしを意味する数値
+  FILLED_NUM = 0
+  #塗られてないことを意味する数値
+  NO_FILLED_NUM = 255
+  #塗りが確定していないことを意味する数値
+  UNSOLVED_NUM = -1
+
+  #
   # ピクロスのマス目の描画　に関係する定数
   #
 
@@ -37,5 +51,5 @@ class constans:
   COLUMN_HINT_NUM_MARGIN = 9
 
   #ヒントとなる数字の1文字あたりの表示領域
-  HINT_MARGIN_WIDTH = 5
+  HINT_MARGIN_WIDTH = 7
 

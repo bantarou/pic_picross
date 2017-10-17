@@ -30,7 +30,7 @@ gray_img = blur_image(gray_img, 2)
 # エッジ抽出
 canny_img = cv2.Canny(gray_img, 50, 120)
 
-mosaic_img = convert_mosaic(ORG_FILE_NAME, 2, 5, 0.0002)
+mosaic_img = convert_mosaic(ORG_FILE_NAME, 2, 15, 0.0002)
 
 draw_main(mosaic_img, 11)
 
