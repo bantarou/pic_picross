@@ -47,6 +47,24 @@ def calc_marge_part(hint, row_length, col_length):
 
   return ans
 
+#埋まっているマスの合計がヒントの合計と一致した場合の処理
+def fill_line(line, hint):
+  hint_sum = 0
+  fill_sum = 0
+  for cnt in range(0, len(hint)):
+    hint_sum += hint[cnt]
+
+  for i in range(0, len(line)):
+    if line[i] == co.FILLED_NUM:
+      fill_sum += 1
+
+  if hint_sum == fill_sum:
+    for i in range(0, len(line)):
+      if line[i] == co.UNSOLVED_NUM:
+        line[i] = co.NO_FILLED_NUM
+
+  return line
+
 #列の全てのマスが回答できる場合の処理
 def first_process(boad, row_hint, col_hint):
   row_length = len(boad)
@@ -125,12 +143,16 @@ def third_process(line, hint):
       fill_count -= 1
       if fill_count < 0:
         fill_flag = False
-        hint_cnt += 1
+        hint_cnt -= 1
     elif line[j] == co.UNSOLVED_NUM:
       break
     elif line[j] == co.FILLED_NUM:
       fill_count = hint[hint_cnt] - 1
+      fill_flag = True
+
+  line = fill_line(line, hint)
   return line
+
 
 #フラグの初期化用関数
 def init_check(boad, row_flag, col_flag):
@@ -177,6 +199,8 @@ def solve_picross(row_hint, col_hint, row_length, col_length):
   #フラグの初期化
   row_flag, col_flag = init_check(boad, row_flag, col_flag)
 
+  solve_cnt = 0
+
   while not filled_check(row_flag, col_flag):
     #行方向の三番目の処理
     for i in range(0, row_length):
@@ -188,7 +212,9 @@ def solve_picross(row_hint, col_hint, row_length, col_length):
       if not col_flag[j]:
         line = third_process(boad[:,j], col_hint[j])
 
-    break
+    if solve_cnt > co.MAX_LOOP_VERIFY:
+      break
+    solve_cnt += 1
 
   return boad
 
