@@ -161,9 +161,223 @@ def third_process(line, hint):
   line = fill_line(line, hint)
   return line
 
+#確実に黒マスが届かないマスの処理(TODO:バグってる)
+def check_length(line, hint):
+  length_num = []
+
+  continue_num = 0
+  start_num = 0
+  cnt_flag = False
+  for i in range(0, len(line)):
+    if cnt_flag:
+      if line[i] == co.FILLED_NUM:
+        continue_num += 1
+      else:
+        tmp = []
+        tmp.append(continue_num)
+        tmp.append(start_num)
+        length_num.append(tmp)
+        continue_num = 0
+        cnt_flag = False
+
+    else:
+      if line[i] == co.FILLED_NUM:
+        start_num = i
+        continue_num += 1
+        cnt_flag = True
+
+  tmp_line = np.copy(line)
+  if len(length_num) == len(hint):
+    for cnt in range(0, len(length_num)):
+      for i in range(0, hint[cnt]):
+        right_pivot = sum(length_num[cnt]) 
+        left_pivot = length_num[cnt][1]
+        if right_pivot - i >= 0 and tmp_line[right_pivot - i] == co.UNSOLVED_NUM:
+          tmp_line[right_pivot - i] = co.CHECK_NUM
+
+        if left_pivot + i < len(line) and tmp_line[left_pivot + i] == co.UNSOLVED_NUM:
+          tmp_line[left_pivot + i] = co.CHECK_NUM
+
+    for i in range(0, len(line)):
+      if line[i] == co.UNSOLVED_NUM and tmp_line[i] != co.CHECK_NUM:
+        line[i] = co.NO_FILLED_NUM
+
+  return line
+
+
+
+
+#狭小マスの処理
+def check_sparse(line, hint):
+  sparse_num = []
+
+  sparse_cnt = 0
+  start_num = 0
+  cnt_flag = False
+  for i in range(0, len(line)):
+    if cnt_flag:
+      if line[i] == co.UNSOLVED_NUM:
+        if i == len(line) - 1:
+          sparse_cnt += 1
+          tmp = []
+          tmp.append(sparse_cnt)
+          tmp.append(start_num)
+          sparse_num.append(tmp)
+          sparse_cnt = 0
+          cnt_flag = False
+        else:
+          sparse_cnt += 1
+
+      elif line[i] == co.NO_FILLED_NUM:
+        tmp = []
+        tmp.append(sparse_cnt)
+        tmp.append(start_num)
+        sparse_num.append(tmp)
+        sparse_cnt = 0
+        cnt_flag = False
+
+      elif line[i] == co.FILLED_NUM:
+        sparse_cnt = 0
+        cnt_flag = False
+
+    else:
+      if line[i] == co.UNSOLVED_NUM:
+        if i == len(line) - 1 and line[i - 1] == co. NO_FILLED_NUM:
+          tmp = []
+          tmp.append(1)
+          tmp.append(i)
+          sparse_num.append(tmp)
+
+        elif (i - 1) >= 0:
+          if line[i - 1] == co.NO_FILLED_NUM:
+            sparse_cnt += 1
+            start_num = i
+            cnt_flag = True
+
+        else:
+          sparse_cnt += 1
+          start_num = i
+          cnt_flag = True
+
+  min_hint = min(hint)
+  for cnt in range(0, len(sparse_num)):
+    if sparse_num[cnt][0] < min_hint:
+      for i in range(sparse_num[cnt][1], sum(sparse_num[cnt])):
+        line[i] = co.NO_FILLED_NUM
+
+  return line
+
+
+#埋まっているマスの塊の左右を確認する処理
+def check_around_filled(line, hint):
+  continue_cnt = 0
+  hint_num = 0
+  start_num = 0
+  span_cnt = 0
+  max_span = 0
+  cnt_flag = False
+
+  for i in range(0, len(line)):
+    if cnt_flag:
+      if line[i] == co.FILLED_NUM:
+        continue_cnt += 1
+      else:
+        if span_cnt > max_span:
+          max_span = span_cnt
+
+        if span_cnt == 0:
+          if hint[hint_num] == continue_cnt and max_span <= hint[hint_num]:
+            line[i] = co.NO_FILLED_NUM
+            contiue_cnt = max_span = span_cnt = 0
+            cnt_flag = False
+            hint_num += 1
+          else:
+            break
+        else:
+          if hint[hint_num] == continue_cnt and max_span <= hint[hint_num]:
+            if start_num - 1 >= 0:
+              line[start_num - 1] = co.NO_FILLED_NUM
+            line[i] = co.NO_FILLED_NUM
+            contiue_cnt = max_span = span_cnt = 0
+            cnt_flag = False
+            break
+          else:
+            break
+
+    else:
+      if line[i] == co.FILLED_NUM:
+        continue_cnt += 1
+        start_num = i
+        cnt_flag = True
+      elif line[i] == co.NO_FILLED_NUM:
+        if span_cnt > max_span:
+          max_span = span_cnt
+        span_cnt = 0
+      elif line[i] == co.UNSOLVED_NUM:
+        span_cnt += 1
+
+  return line
+
+#ヒントの最大値の左右を確認する処理
+def check_around_max(line, hint):
+  line_num = []
+  continue_cnt = 0
+  start_num = 0
+  cnt_flag = False
+  for i in range(0, len(line)):
+    if cnt_flag:
+      if i != (len(line) - 1):
+        if line[i] == co.FILLED_NUM:
+          continue_cnt += 1
+
+        else:
+          tmp = []
+          tmp.append(continue_cnt)
+          tmp.append(start_num)
+          line_num.append(tmp)
+          continue_cnt = start_num = 0
+          cnt_flag = False
+
+      else:
+        continue_cnt += 1
+        tmp = []
+        tmp.append(continue_cnt)
+        tmp.append(start_num)
+        line_num.append(tmp)
+
+    else:
+      if line[i] == co.FILLED_NUM:
+        continue_cnt += 1
+        start_num = i
+        cnt_flag = True
+
+  continue_flag = True
+  while continue_flag:
+    continue_flag = False
+    for cnt in range(0, len(line_num)):
+      if line_num[cnt][0] == max(hint):
+        if line_num[cnt][1] - 1 >= 0:
+          line[line_num[cnt][1] - 1] = co.NO_FILLED_NUM
+        if sum(line_num[cnt]) < len(line):
+          line[sum(line_num[cnt])] = co.NO_FILLED_NUM
+        hint = np.delete(hint, np.argmax(hint), 0)
+        line_num.pop(cnt)
+        continue_flag = True
+        break
+
+  return line
+
+
+
 #埋まらないマスを推定する処理
 def fourth_process(line, hint):
-  print("a")
+  line = check_around_filled(line, hint)
+  line = check_around_filled(line[::-1],hint[::-1])
+  line = line[::-1]
+  line = check_around_max(line, hint)
+  line = check_sparse(line, hint)
+  line = check_length(line, hint)
+  return line
 
 #フラグの初期化用関数
 def init_check(boad, row_flag, col_flag):
@@ -224,6 +438,7 @@ def solve_picross(row_hint, col_hint, row_length, col_length):
     for i in range(0, row_length):
       if not row_flag[i]:
         line = third_process(boad[i], row_hint[i])
+        line = fourth_process(boad[i], row_hint[i])
         if line_check(line):
           row_flag[i] = True
 
@@ -231,6 +446,7 @@ def solve_picross(row_hint, col_hint, row_length, col_length):
     for j in range(0, col_length):
       if not col_flag[j]:
         line = third_process(boad[:,j], col_hint[j])
+        line = fourth_process(boad[:,j], col_hint[j])
         if line_check(line):
           col_flag[j] = True
 
@@ -255,6 +471,13 @@ def picross_check(img):
         sys.stdout.write("-")
     sys.stdout.write("\n")
 
+#テスト用関数
+def verify_test():
+  line = np.array([-1, -1, 0, 0, 0, -1, -1, 255, -1, -1, 0, -1, -1, 0, 0, 0, -1, -1, 0, 0, 0, 0, 0, -1, -1, -1])
+  hint = np.array([3, 4, 3, 5])
+  line = check_around_max(line, hint)
+  line = check_sparse(line, hint)
+  print(line)
 
 #ピクロスが回答可能かどうかの検証用関数
 def picross_verify(img, row_hint, col_hint):
@@ -274,6 +497,8 @@ def picross_verify(img, row_hint, col_hint):
     hint = col_hint[x].split(',')
     hint = list(map(int, hint))
     tmp_col_hint.append(hint)
+
+  verify_test()
 
   solve = solve_picross(tmp_row_hint, tmp_col_hint, row_length, col_length)
   picross_check(solve)
