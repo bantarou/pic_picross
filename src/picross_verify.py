@@ -186,11 +186,17 @@ def check_length(line, hint):
         continue_num += 1
         cnt_flag = True
 
+  #重複している塊が存在した場合処理を停止
+  if len(length_num) == len(hint):
+    for cnt in range(0, len(length_num) - 1):
+      if not (length_num[cnt][0] + hint[cnt]) < (length_num[cnt + 1][1] - 1):
+        return line
+
   tmp_line = np.copy(line)
   if len(length_num) == len(hint):
     for cnt in range(0, len(length_num)):
       for i in range(0, hint[cnt]):
-        right_pivot = sum(length_num[cnt]) 
+        right_pivot = sum(length_num[cnt]) - 1 
         left_pivot = length_num[cnt][1]
         if right_pivot - i >= 0 and tmp_line[right_pivot - i] == co.UNSOLVED_NUM:
           tmp_line[right_pivot - i] = co.CHECK_NUM
@@ -312,8 +318,10 @@ def check_around_filled(line, hint):
       elif line[i] == co.NO_FILLED_NUM:
         if span_cnt > max_span:
           max_span = span_cnt
+        continue_cnt = 0
         span_cnt = 0
       elif line[i] == co.UNSOLVED_NUM:
+        continue_cnt = 0
         span_cnt += 1
 
   return line
@@ -339,7 +347,8 @@ def check_around_max(line, hint):
           cnt_flag = False
 
       else:
-        continue_cnt += 1
+        if line[i] == co.FILLED_NUM:
+          continue_cnt += 1
         tmp = []
         tmp.append(continue_cnt)
         tmp.append(start_num)
@@ -473,10 +482,18 @@ def picross_check(img):
 
 #テスト用関数
 def verify_test():
-  line = np.array([-1, -1, 0, 0, 0, -1, -1, 255, -1, -1, 0, -1, -1, 0, 0, 0, -1, -1, 0, 0, 0, 0, 0, -1, -1, -1])
-  hint = np.array([3, 4, 3, 5])
+  line = np.array([0, -1, -1, -1, 0, -1, -1, -1, -1 , -1, -1, -1])
+  hint = np.array([1, 2, 5])
+
+  line = check_around_filled(line, hint)
+  print(line)
+  line = check_around_filled(line[::-1],hint[::-1])
+  line = line[::-1]
+  print(line)
   line = check_around_max(line, hint)
+  print(line)
   line = check_sparse(line, hint)
+  line = check_length(line, hint)
   print(line)
 
 #ピクロスが回答可能かどうかの検証用関数
