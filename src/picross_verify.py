@@ -161,7 +161,7 @@ def third_process(line, hint):
   line = fill_line(line, hint)
   return line
 
-#確実に黒マスが届かないマスの処理(TODO:バグってる)
+#確実に黒マスが届かないマスの処理
 def check_length(line, hint):
   length_num = []
 
@@ -265,7 +265,45 @@ def check_sparse(line, hint):
           start_num = i
           cnt_flag = True
 
-  min_hint = min(hint)
+
+  solved_num = []
+  continue_num = 0
+  cnt_flag = False
+  for i in range(0, len(line)):
+
+    if cnt_flag:
+      if line[i] == co.FILLED_NUM:
+        continue_num += 1
+      elif line[i] == co.NO_FILLED_NUM:
+        solved_num.append(continue_num)
+        continue_num = 0
+        cnt_flag = False
+      elif line[i] == co.UNSOLVED_NUM:
+        continue_num = 0
+        cnt_flag = False
+
+    else:
+      if line[i] == co.FILLED_NUM:
+        if (i - 1 >= 0 and line[i - 1] == co.NO_FILLED_NUM) or i - 1 < 0:
+          continue_num += 1
+          cnt_flag = True
+
+
+  #確定しているヒントを削除する処理
+  delete_num = []
+  for cnt in range(0, len(hint)):
+    for cnt2 in range(0, len(solved_num)):
+      if hint[cnt] == solved_num[cnt2]:
+        delete_num.append(cnt)
+
+  tmp_hint = hint.copy()
+  print("before", hint)
+  tmp_hint = np.delete(tmp_hint, delete_num, 0)
+
+  if len(tmp_hint) > 0:
+    min_hint = min(tmp_hint)
+  else:
+    min_hint = 0
   for cnt in range(0, len(sparse_num)):
     if sparse_num[cnt][0] < min_hint:
       for i in range(sparse_num[cnt][1], sum(sparse_num[cnt])):
@@ -274,7 +312,7 @@ def check_sparse(line, hint):
   return line
 
 
-#埋まっているマスの塊の左右を確認する処理
+#埋まっているマスの塊の左右を確認する処理(両側から処理を行う必要がある)
 def check_around_filled(line, hint):
   continue_cnt = 0
   hint_num = 0
@@ -361,22 +399,32 @@ def check_around_max(line, hint):
         cnt_flag = True
 
   continue_flag = True
+
+  #ヒントをコピー
+  tmp_hint = hint.copy()
   while continue_flag:
     continue_flag = False
     for cnt in range(0, len(line_num)):
-      if line_num[cnt][0] == max(hint):
+      if len(tmp_hint) > 0:
+        max_hint = max(tmp_hint)
+      else:
+        max_hint = 0
+
+      if line_num[cnt][0] == max_hint:
         if line_num[cnt][1] - 1 >= 0:
           line[line_num[cnt][1] - 1] = co.NO_FILLED_NUM
         if sum(line_num[cnt]) < len(line):
           line[sum(line_num[cnt])] = co.NO_FILLED_NUM
-        hint = np.delete(hint, np.argmax(hint), 0)
+        tmp_hint = np.delete(tmp_hint, np.argmax(tmp_hint), 0)
         line_num.pop(cnt)
         continue_flag = True
         break
 
   return line
 
-
+#分断されたマスの処理
+def fill_divide(line, hint):
+  print(line)
 
 #埋まらないマスを推定する処理
 def fourth_process(line, hint):
