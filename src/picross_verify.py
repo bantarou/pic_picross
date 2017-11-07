@@ -295,9 +295,10 @@ def check_sparse(line, hint):
     for cnt2 in range(0, len(solved_num)):
       if hint[cnt] == solved_num[cnt2]:
         delete_num.append(cnt)
+        solved_num = np.delete(solved_num, cnt2, 0)
+        break
 
   tmp_hint = hint.copy()
-  print("before", hint)
   tmp_hint = np.delete(tmp_hint, delete_num, 0)
 
   if len(tmp_hint) > 0:
@@ -400,7 +401,7 @@ def check_around_max(line, hint):
 
   continue_flag = True
 
-  #ヒントをコピー
+  #ヒント行列をコピー
   tmp_hint = hint.copy()
   while continue_flag:
     continue_flag = False
@@ -424,7 +425,8 @@ def check_around_max(line, hint):
 
 #分断されたマスの処理
 def fill_divide(line, hint):
-  print(line)
+  
+  return line
 
 #埋まらないマスを推定する処理
 def fourth_process(line, hint):
@@ -434,6 +436,11 @@ def fourth_process(line, hint):
   line = check_around_max(line, hint)
   line = check_sparse(line, hint)
   line = check_length(line, hint)
+  return line
+
+#マスを推定して埋める処理
+def fifth_process(line, hint):
+  line = fill_divide(line, hint)
   return line
 
 #フラグの初期化用関数
