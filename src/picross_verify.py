@@ -2,6 +2,7 @@
 import cv2
 import numpy as np
 
+from picross_boad_info import boad_infomation as info
 from constants import constans as co
 
 #左右詰めの回答の共通部分を返す関数
@@ -163,30 +164,9 @@ def third_process(line, hint):
 
 #確実に黒マスが届かないマスの処理
 def check_length(line, hint):
-  length_num = []
+  length_num = info.filled_sequential_info(line)
 
-  continue_num = 0
-  start_num = 0
-  cnt_flag = False
-  for i in range(0, len(line)):
-    if cnt_flag:
-      if line[i] == co.FILLED_NUM:
-        continue_num += 1
-      else:
-        tmp = []
-        tmp.append(continue_num)
-        tmp.append(start_num)
-        length_num.append(tmp)
-        continue_num = 0
-        cnt_flag = False
-
-    else:
-      if line[i] == co.FILLED_NUM:
-        start_num = i
-        continue_num += 1
-        cnt_flag = True
-
-  #重複している塊が存在した場合処理を停止
+   #重複している塊が存在した場合処理を停止
   if len(length_num) == len(hint):
     for cnt in range(0, len(length_num) - 1):
       if not (length_num[cnt][0] + hint[cnt]) < (length_num[cnt + 1][1] - 1):
@@ -210,84 +190,10 @@ def check_length(line, hint):
 
   return line
 
-
-
-
 #狭小マスの処理
 def check_sparse(line, hint):
-  sparse_num = []
-
-  sparse_cnt = 0
-  start_num = 0
-  cnt_flag = False
-  for i in range(0, len(line)):
-    if cnt_flag:
-      if line[i] == co.UNSOLVED_NUM:
-        if i == len(line) - 1:
-          sparse_cnt += 1
-          tmp = []
-          tmp.append(sparse_cnt)
-          tmp.append(start_num)
-          sparse_num.append(tmp)
-          sparse_cnt = 0
-          cnt_flag = False
-        else:
-          sparse_cnt += 1
-
-      elif line[i] == co.NO_FILLED_NUM:
-        tmp = []
-        tmp.append(sparse_cnt)
-        tmp.append(start_num)
-        sparse_num.append(tmp)
-        sparse_cnt = 0
-        cnt_flag = False
-
-      elif line[i] == co.FILLED_NUM:
-        sparse_cnt = 0
-        cnt_flag = False
-
-    else:
-      if line[i] == co.UNSOLVED_NUM:
-        if i == len(line) - 1 and line[i - 1] == co. NO_FILLED_NUM:
-          tmp = []
-          tmp.append(1)
-          tmp.append(i)
-          sparse_num.append(tmp)
-
-        elif (i - 1) >= 0:
-          if line[i - 1] == co.NO_FILLED_NUM:
-            sparse_cnt += 1
-            start_num = i
-            cnt_flag = True
-
-        else:
-          sparse_cnt += 1
-          start_num = i
-          cnt_flag = True
-
-
-  solved_num = []
-  continue_num = 0
-  cnt_flag = False
-  for i in range(0, len(line)):
-
-    if cnt_flag:
-      if line[i] == co.FILLED_NUM:
-        continue_num += 1
-      elif line[i] == co.NO_FILLED_NUM:
-        solved_num.append(continue_num)
-        continue_num = 0
-        cnt_flag = False
-      elif line[i] == co.UNSOLVED_NUM:
-        continue_num = 0
-        cnt_flag = False
-
-    else:
-      if line[i] == co.FILLED_NUM:
-        if (i - 1 >= 0 and line[i - 1] == co.NO_FILLED_NUM) or i - 1 < 0:
-          continue_num += 1
-          cnt_flag = True
-
+  sparse_num = info.unsolved_sequential_point_info(line)
+  solved_num = info.solved_certain_num_info(line)
 
   #確定しているヒントを削除する処理
   delete_num = []
@@ -367,37 +273,7 @@ def check_around_filled(line, hint):
 
 #ヒントの最大値の左右を確認する処理
 def check_around_max(line, hint):
-  line_num = []
-  continue_cnt = 0
-  start_num = 0
-  cnt_flag = False
-  for i in range(0, len(line)):
-    if cnt_flag:
-      if i != (len(line) - 1):
-        if line[i] == co.FILLED_NUM:
-          continue_cnt += 1
-
-        else:
-          tmp = []
-          tmp.append(continue_cnt)
-          tmp.append(start_num)
-          line_num.append(tmp)
-          continue_cnt = start_num = 0
-          cnt_flag = False
-
-      else:
-        if line[i] == co.FILLED_NUM:
-          continue_cnt += 1
-        tmp = []
-        tmp.append(continue_cnt)
-        tmp.append(start_num)
-        line_num.append(tmp)
-
-    else:
-      if line[i] == co.FILLED_NUM:
-        continue_cnt += 1
-        start_num = i
-        cnt_flag = True
+  line_num = info.solved_uncertain_num_info(line)
 
   continue_flag = True
 
