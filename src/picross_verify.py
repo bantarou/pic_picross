@@ -310,8 +310,16 @@ def fill_divide(line, hint):
   pivot_num = 0
   for i in range(0, len(line)):
     if line[i] == co.UNSOLVED_NUM:
-      pivot_num = i
+      if line[i - 1] == co.NO_FILLED_NUM:
+        pivot_num = i
 
+      break
+
+  tmp_line = calc_marge_part(tmp_hint, len(line) - pivot_num)
+
+  for i in range(pivot_num, len(line)):
+    if tmp_line[i - pivot_num] == co.FILLED_NUM:
+      line[i] = co.FILLED_NUM
 
   return line
 
@@ -390,6 +398,7 @@ def solve_picross(row_hint, col_hint, row_length, col_length):
       if not row_flag[i]:
         line = third_process(boad[i], row_hint[i])
         line = fourth_process(boad[i], row_hint[i])
+        line = fifth_process(boad[i], row_hint[i])
         if line_check(line):
           row_flag[i] = True
 
@@ -398,6 +407,7 @@ def solve_picross(row_hint, col_hint, row_length, col_length):
       if not col_flag[j]:
         line = third_process(boad[:,j], col_hint[j])
         line = fourth_process(boad[:,j], col_hint[j])
+        line = fifth_process(boad[:,j], col_hint[j])
         if line_check(line):
           col_flag[j] = True
 
