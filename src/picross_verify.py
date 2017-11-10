@@ -6,28 +6,28 @@ from picross_boad_info import boad_infomation as info
 from constants import constans as co
 
 #左右詰めの回答の共通部分を返す関数
-def calc_marge_part(hint, row_length, col_length):
+def calc_marge_part(hint, length):
   tmp_num = 0
-  tmp1 = np.empty(col_length)
-  tmp2 = np.empty(col_length)
+  tmp1 = np.empty(length)
+  tmp2 = np.empty(length)
   tmp1.fill(co.UNSOLVED_NUM)
   tmp2.fill(co.UNSOLVED_NUM)
 
-  num_tmp1 = np.empty(col_length)
-  num_tmp2 = np.empty(col_length)
-  num_tmp1.fill(-1)
-  num_tmp2.fill(-1)
+  num_tmp1 = np.empty(length)
+  num_tmp2 = np.empty(length)
+  num_tmp1.fill(co.UNSOLVED_NUM)
+  num_tmp2.fill(co.UNSOLVED_NUM)
 
   for cnt in range(0, len(hint)):
     for j in range(tmp_num, tmp_num + hint[cnt]):
       tmp1[j] = co.FILLED_NUM
       num_tmp1[j] = cnt
     tmp_num += hint[cnt]
-    if tmp_num < row_length:
+    if tmp_num < length:
       tmp1[tmp_num] = co.NO_FILLED_NUM
       tmp_num += 1
 
-  tmp_num = col_length
+  tmp_num = length
   hint_num = len(hint) - 1
   for cnt in range(0, len(hint)):
     for j in range(tmp_num - hint[hint_num], tmp_num):
@@ -39,8 +39,8 @@ def calc_marge_part(hint, row_length, col_length):
       tmp2[tmp_num] = co.NO_FILLED_NUM
 
   #左詰めと右詰めの共通部分かつ同じブロックに属する部分を算出
-  ans = np.empty(col_length)
-  for i in range(0, col_length):
+  ans = np.empty(length)
+  for i in range(0, length):
     if tmp1[i] == tmp2[i] and num_tmp1[i] == num_tmp2[i]:
       ans[i] = tmp1[i]
     else:
@@ -102,7 +102,7 @@ def secound_process(boad, row_hint, col_hint):
 
   #行方向の処理
   for i in range(0, row_length):
-    line = calc_marge_part(row_hint[i], row_length, col_length)
+    line = calc_marge_part(row_hint[i], row_length)
 
     for j in range(0, len(line)):
       if line[j] == co.FILLED_NUM:
@@ -110,7 +110,7 @@ def secound_process(boad, row_hint, col_hint):
 
   #列方向の処理
   for j in range(0, col_length):
-    line = calc_marge_part(col_hint[j], col_length, row_length)
+    line = calc_marge_part(col_hint[j], col_length)
 
     for i in range(0, len(line)):
       if line[i] == co.FILLED_NUM:
@@ -301,7 +301,18 @@ def check_around_max(line, hint):
 
 #分断されたマスの処理
 def fill_divide(line, hint):
-  
+  sequential_filled_num = info.solved_sequential_certain_num_info(line)
+  tmp_hint = hint.copy()
+
+  for cnt in range(0, len(sequential_filled_num)):
+    tmp_hint = np.delete(tmp_hint, 0, 0)
+
+  pivot_num = 0
+  for i in range(0, len(line)):
+    if line[i] == co.UNSOLVED_NUM:
+      pivot_num = i
+
+
   return line
 
 #埋まらないマスを推定する処理
@@ -425,6 +436,7 @@ def verify_test():
   print(line)
   line = check_sparse(line, hint)
   line = check_length(line, hint)
+  line = fill_divide(line, hint)
   print(line)
 
 #ピクロスが回答可能かどうかの検証用関数
