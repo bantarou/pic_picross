@@ -299,6 +299,31 @@ def check_around_max(line, hint):
 
   return line
 
+#ヒントに対応するマスの塊を調べる関数
+def check_block_hint(line, hint):
+  no_filled_sparse = info.no_filled_sparse_info(line)
+
+  exist_filled_cnt = 0
+  delete_num = []
+  for cnt in range(0, len(no_filled_sparse)):
+    for i in range(no_filled_sparse[cnt][0], no_filled_sparse[cnt][1]):
+      if line[i] == co.FILLED_NUM:
+        exist_filled_cnt += 1
+        break
+      elif i == no_filled_sparse[cnt][1] - 1:
+        delete_num.append(cnt)
+
+  no_filled_sparse = np.delete(no_filled_sparse, delete_num, 0)
+
+  if exist_filled_cnt == len(hint):
+    for cnt in range(0, len(hint)):
+      tmp_line = calc_marge_part([hint[cnt]], no_filled_sparse[cnt][1] - no_filled_sparse[cnt][0])
+      for i in range(0, len(tmp_line)):
+        if tmp_line[i] == co.FILLED_NUM:
+          line[i + no_filled_sparse[cnt][0]] = co.FILLED_NUM
+
+  return line
+
 #分断されたマスの処理
 def fill_divide(line, hint):
   sequential_filled_num = info.solved_sequential_certain_num_info(line)
@@ -320,6 +345,8 @@ def fill_divide(line, hint):
   for i in range(pivot_num, len(line)):
     if tmp_line[i - pivot_num] == co.FILLED_NUM:
       line[i] = co.FILLED_NUM
+
+  line = check_block_hint(line, hint)
 
   return line
 
@@ -434,8 +461,8 @@ def picross_check(img):
 
 #テスト用関数
 def verify_test():
-  line = np.array([0, -1, -1, -1, 0, -1, -1, -1, -1 , -1, -1, -1])
-  hint = np.array([1, 2, 5])
+  line = np.array([-1, -1, -1, -1, -1, 0, -1, -1, -1, -1, -1, 255, 255, 255, 255, 255, 255, 255, -1 , -1, -1, 0, 255, 255, 255, 255, 255, 0, -1, 0, 255, 0, 0,  -1, -1, 0, 0, -1, 0, -1])
+  hint = np.array([3, 1, 3, 8])
 
   line = check_around_filled(line, hint)
   print(line)
@@ -447,6 +474,8 @@ def verify_test():
   line = check_sparse(line, hint)
   line = check_length(line, hint)
   line = fill_divide(line, hint)
+  print(line)
+  line = check_block_hint(line, hint)
   print(line)
 
 #ピクロスが回答可能かどうかの検証用関数
