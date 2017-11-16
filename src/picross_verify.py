@@ -323,26 +323,42 @@ def fill_divide_hint(line, hint):
 
   return line
 
-#左詰めで共通部分を導出する関数(左右から行う必要あり)
-def fill_divide_left_justified(line, hint):
-  sequential_filled_num = info.solved_sequential_certain_num_info(line)
+#左右の端の決定部分を考慮して残ったヒントの共通部分を導出する関数
+def fill_divide_justified(line, hint):
+  sequential_filled_num_left = info.solved_sequential_certain_num_info(line)
+  sequential_filled_num_right = info.solved_sequential_certain_num_info(line[::-1])
   tmp_hint = hint.copy()
 
-  for cnt in range(0, len(sequential_filled_num)):
+  if len(sequential_filled_num_left) + \
+    len(sequential_filled_num_right) >= len(hint):
+    return line
+
+  for cnt in range(0, len(sequential_filled_num_left)):
     tmp_hint = np.delete(tmp_hint, 0, 0)
 
-  pivot_num = 0
+  for cnt in range(0, len(sequential_filled_num_right)):
+    tmp_hint = np.delete(tmp_hint, len(tmp_hint) - 1, 0)
+
+  pivot_left = 0
+  pivot_right = 0
   for i in range(0, len(line)):
     if line[i] == co.UNSOLVED_NUM:
-      if line[i - 1] == co.NO_FILLED_NUM:
-        pivot_num = i
+      if i - 1 >= 0 and line[i - 1] == co.NO_FILLED_NUM:
+        pivot_left = i
 
       break
 
-  tmp_line = calc_marge_part(tmp_hint, len(line) - pivot_num)
+  for i in range(0, len(line))[::-1]:
+    if line[i] == co.UNSOLVED_NUM:
+      if i + 1 < len(line) and line[i + 1] == co.NO_FILLED_NUM:
+        pivot_right = len(line) - i - 1
 
-  for i in range(pivot_num, len(line)):
-    if tmp_line[i - pivot_num] == co.FILLED_NUM:
+      break
+
+  tmp_line = calc_marge_part(tmp_hint, len(line) - pivot_left - pivot_right)
+
+  for i in range(pivot_left, len(line) - pivot_right):
+    if tmp_line[i - pivot_left] == co.FILLED_NUM:
       line[i] = co.FILLED_NUM
 
   return line
@@ -362,12 +378,8 @@ def fourth_process(line, hint):
 
 #マスを推定して埋める処理
 def fifth_process(line, hint):
-  #左右から行う必要がある処理
-  line = fill_divide_left_justified(line, hint)
-  line = fill_divide_left_justified(line[::-1], hint[::-1])
-  line = line[::-1]
-
   #一方向からで十分な処理
+  line = fill_divide_justified(line, hint)
   line = fill_divide_hint(line, hint)
   return line
 
@@ -479,7 +491,7 @@ def verify_test():
   print(line)
   line = check_sparse(line, hint)
   line = check_length(line, hint)
-  line = fill_divide_left_justified(line, hint)
+  line = fill_divide_justified(line, hint)
   print(line)
   line = fill_divide_hint(line, hint)
   print(line)
