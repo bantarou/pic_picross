@@ -66,7 +66,7 @@ class boad_infomation:
 
       else:
         if line[i] == co.UNSOLVED_NUM:
-          if i == len(line) - 1 and line[i - 1] == co. NO_FILLED_NUM:
+          if i == len(line) - 1 and line[i - 1] == co.NO_FILLED_NUM:
             tmp = []
             tmp.append(1)
             tmp.append(i)
@@ -176,7 +176,7 @@ class boad_infomation:
 
     return solved_num
 
-  #NO_FILLEDマスの間隔が開くさいの開始位置を終了位置を返す関数
+  #NO_FILLEDマスの間隔が開く際の開始位置と終了位置を返す関数
   def no_filled_sparse_info(line):
     sparse_num = []
     start_num = 0
@@ -201,6 +201,55 @@ class boad_infomation:
         if line[i] != co.NO_FILLED_NUM:
           start_num = i
           cnt_flag = True
+          if i == len(line) - 1:
+            end_num = i + 1
+            tmp_list = []
+            tmp_list.append(start_num)
+            tmp_list.append(end_num)
+            sparse_num.append(tmp_list)
+
+    return sparse_num
+
+  #FILLEDマスを含まないNO_FILLEDマスの間の開始位置と終了位置を返す関数
+  def no_filled_sparse_without_filled_info(line):
+    sparse_num = []
+    start_num = 0
+    end_num = 0
+    cnt_flag = False
+    for i in range(0, len(line)):
+      if cnt_flag:
+        if line[i] == co.NO_FILLED_NUM:
+          end_num = i
+          tmp_list = []
+          tmp_list.append(start_num)
+          tmp_list.append(end_num)
+          sparse_num.append(tmp_list)
+          cnt_flag = False
+        elif i == len(line) - 1:
+          end_num = i + 1
+          tmp_list = []
+          tmp_list.append(start_num)
+          tmp_list.append(end_num)
+          sparse_num.append(tmp_list)
+      else:
+        if line[i] != co.NO_FILLED_NUM:
+          start_num = i
+          cnt_flag = True
+          if i == len(line) - 1:
+            end_num = i + 1
+            tmp_list = []
+            tmp_list.append(start_num)
+            tmp_list.append(end_num)
+            sparse_num.append(tmp_list)
+
+    delete_num = []
+    for cnt in range(0, len(sparse_num)):
+      for i in range(sparse_num[cnt][0], sparse_num[cnt][1]):
+        if line[i] == co.FILLED_NUM:
+          delete_num.append(cnt)
+          break
+
+    sparse_num = np.delete(sparse_num, delete_num, 0)
 
     return sparse_num
 

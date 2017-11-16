@@ -178,10 +178,12 @@ def check_length(line, hint):
       for i in range(0, hint[cnt]):
         right_pivot = sum(length_num[cnt]) - 1 
         left_pivot = length_num[cnt][1]
-        if right_pivot - i >= 0 and tmp_line[right_pivot - i] == co.UNSOLVED_NUM:
+        if right_pivot - i >= 0 \
+          and tmp_line[right_pivot - i] == co.UNSOLVED_NUM:
           tmp_line[right_pivot - i] = co.CHECK_NUM
 
-        if left_pivot + i < len(line) and tmp_line[left_pivot + i] == co.UNSOLVED_NUM:
+        if left_pivot + i < len(line) \
+          and tmp_line[left_pivot + i] == co.UNSOLVED_NUM:
           tmp_line[left_pivot + i] = co.CHECK_NUM
 
     for i in range(0, len(line)):
@@ -190,9 +192,9 @@ def check_length(line, hint):
 
   return line
 
-#狭小マスの処理
-def check_sparse(line, hint):
-  sparse_num = info.unsolved_sequential_point_info(line)
+#ヒントの最小値以下の狭小マスの処理
+def check_sparse_min(line, hint):
+  sparse_num = info.no_filled_sparse_without_filled_info(line)
   solved_num = info.solved_certain_num_info(line)
 
   #確定しているヒントを削除する処理
@@ -207,14 +209,53 @@ def check_sparse(line, hint):
   tmp_hint = hint.copy()
   tmp_hint = np.delete(tmp_hint, delete_num, 0)
 
+  #最小のヒント数だけ考慮してNO_FILLEDマスを決定
   if len(tmp_hint) > 0:
     min_hint = min(tmp_hint)
   else:
     min_hint = 0
   for cnt in range(0, len(sparse_num)):
-    if sparse_num[cnt][0] < min_hint:
-      for i in range(sparse_num[cnt][1], sum(sparse_num[cnt])):
+    if sparse_num[cnt][1] - sparse_num[cnt][0] < min_hint:
+      for i in range(sparse_num[cnt][0], sparse_num[cnt][1]):
         line[i] = co.NO_FILLED_NUM
+
+  return line
+
+#左右詰めの狭小マスの処理(左右から処理する必要があり)
+def check_sparse_justified(line, hint):
+
+  def line_test(line, num):
+    for i in range(0, num):
+      if line[i] == co.UNSOLVED_NUM:
+        return False
+
+    return True
+
+  #ヒントの順番を考慮してNO_FILLEDマスを決定
+  sparse_num = info.no_filled_sparse_without_filled_info(line)
+  sequential_filled_num_left = info.solved_sequential_certain_num_info(line)
+  sequential_filled_num_right = info.solved_sequential_certain_num_info(line[::-1])
+  tmp_hint = hint.copy()
+
+  if len(sequential_filled_num_left) + \
+    len(sequential_filled_num_right) >= len(hint):
+    return line
+
+  for cnt in range(0, len(sequential_filled_num_left)):
+    tmp_hint = np.delete(tmp_hint, 0, 0)
+
+  for cnt in range(0, len(sequential_filled_num_right)):
+    tmp_hint = np.delete(tmp_hint, len(tmp_hint) - 1, 0)
+
+
+  for cnt in range(0, len(sparse_num)):
+    if sparse_num[cnt][1] - sparse_num[cnt][0] < tmp_hint[0] \
+      and line_test(line, sparse_num[cnt][0]):
+
+      for i in range(sparse_num[cnt][0], sparse_num[cnt][1]):
+        line[i] = co.NO_FILLED_NUM
+    else:
+      break
 
   return line
 
@@ -369,10 +410,13 @@ def fourth_process(line, hint):
   line = check_around_filled(line, hint)
   line = check_around_filled(line[::-1],hint[::-1])
   line = line[::-1]
+  line = check_sparse_justified(line, hint)
+  line = check_sparse_justified(line[::-1], hint[::-1])
+  line = line[::-1]
 
   #一方向からで十分な処理
+  line = check_sparse_min(line, hint)
   line = check_around_max(line, hint)
-  line = check_sparse(line, hint)
   line = check_length(line, hint)
   return line
 
@@ -489,7 +533,7 @@ def verify_test():
   print(line)
   line = check_around_max(line, hint)
   print(line)
-  line = check_sparse(line, hint)
+  line = check_sparse_min(line, hint)
   line = check_length(line, hint)
   line = fill_divide_justified(line, hint)
   print(line)
