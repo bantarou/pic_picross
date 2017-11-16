@@ -218,7 +218,6 @@ def check_sparse(line, hint):
 
   return line
 
-
 #埋まっているマスの塊の左右を確認する処理(両側から処理を行う必要がある)
 def check_around_filled(line, hint):
   continue_cnt = 0
@@ -299,8 +298,8 @@ def check_around_max(line, hint):
 
   return line
 
-#ヒントに対応するマスの塊を調べる関数
-def check_block_hint(line, hint):
+#ヒントの数とNO_FILLEDマスで分割された区間の数が一致した際の処理
+def fill_divide_hint(line, hint):
   no_filled_sparse = info.no_filled_sparse_info(line)
 
   exist_filled_cnt = 0
@@ -324,8 +323,8 @@ def check_block_hint(line, hint):
 
   return line
 
-#分断されたマスの処理
-def fill_divide(line, hint):
+#左詰めで共通部分を導出する関数(左右から行う必要あり)
+def fill_divide_left_justified(line, hint):
   sequential_filled_num = info.solved_sequential_certain_num_info(line)
   tmp_hint = hint.copy()
 
@@ -346,15 +345,16 @@ def fill_divide(line, hint):
     if tmp_line[i - pivot_num] == co.FILLED_NUM:
       line[i] = co.FILLED_NUM
 
-  line = check_block_hint(line, hint)
-
   return line
 
 #埋まらないマスを推定する処理
 def fourth_process(line, hint):
+  #左右から行う必要がある処理
   line = check_around_filled(line, hint)
   line = check_around_filled(line[::-1],hint[::-1])
   line = line[::-1]
+
+  #一方向からで十分な処理
   line = check_around_max(line, hint)
   line = check_sparse(line, hint)
   line = check_length(line, hint)
@@ -362,7 +362,13 @@ def fourth_process(line, hint):
 
 #マスを推定して埋める処理
 def fifth_process(line, hint):
-  line = fill_divide(line, hint)
+  #左右から行う必要がある処理
+  line = fill_divide_left_justified(line, hint)
+  line = fill_divide_left_justified(line[::-1], hint[::-1])
+  line = line[::-1]
+
+  #一方向からで十分な処理
+  line = fill_divide_hint(line, hint)
   return line
 
 #フラグの初期化用関数
@@ -473,9 +479,9 @@ def verify_test():
   print(line)
   line = check_sparse(line, hint)
   line = check_length(line, hint)
-  line = fill_divide(line, hint)
+  line = fill_divide_left_justified(line, hint)
   print(line)
-  line = check_block_hint(line, hint)
+  line = fill_divide_hint(line, hint)
   print(line)
 
 #ピクロスが回答可能かどうかの検証用関数
