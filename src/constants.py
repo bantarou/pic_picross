@@ -15,7 +15,7 @@ class constans:
   #
 
   #検証用関数のループ上限
-  MAX_LOOP_VERIFY = 5
+  MAX_LOOP_VERIFY = 20
 
   #塗りつぶしを意味する数値
   FILLED_NUM = 0
@@ -23,6 +23,8 @@ class constans:
   NO_FILLED_NUM = 255
   #塗りが確定していないことを意味する数値
   UNSOLVED_NUM = -1
+  #チェック用の数値
+  CHECK_NUM = 1
 
   #
   # ピクロスのマス目の描画　に関係する定数
@@ -51,5 +53,5 @@ class constans:
   COLUMN_HINT_NUM_MARGIN = 9
 
   #ヒントとなる数字の1文字あたりの表示領域
-  HINT_MARGIN_WIDTH = 7
+  HINT_MARGIN_WIDTH = 6
 

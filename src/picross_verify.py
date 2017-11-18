@@ -6,11 +6,15 @@ from picross_boad_info import boad_infomation as info
 from constants import constans as co
 
 #エラー検出用関数
-def error_check(list_a, list_b, hint):
-  for i in range(0, len(list_a)):
-    if list_a[i] != co.UNSOLVED_NUM:
-      if list_a[i] != list_b[i]:
-        print("error", list_a, hint)
+def error_check(line, origin_line, hint):
+  for i in range(0, len(line)):
+    if line[i] != co.UNSOLVED_NUM:
+      if line[i] != origin_line[i]:
+        print(i, line[i], origin_line[i])
+        print("error_line", line)
+        print("error_origin", origin_line)
+        print("error_hint", hint)
+        assert False, 'Verify Error'
 
 #左右詰めの回答の共通部分を返す関数
 def calc_marge_part(hint, length):
@@ -151,11 +155,8 @@ def third_process(line, hint):
     return line
 
   line = third_process_main(line, hint)
-  tmp_line = np.copy(line)
   line = third_process_main(line[::-1], hint[::-1])
   line = line[::-1]
-
-  error_check(tmp_line, line, hint)
 
   #確定部分の数=ヒントの合計数の場合の埋めの処理
   line = fill_line(line, hint)
@@ -180,6 +181,14 @@ def check_length(line, hint):
   if len(length_num) == len(hint):
     for cnt in range(0, len(length_num) - 1):
       if not is_divide(line, length_num[cnt],length_num[cnt + 1], hint[cnt]):
+        return line
+
+    reverse_line = np.copy(line)[::-1]
+    reverse_hint = np.copy(hint)[::-1]
+    reverse_length_num = np.copy(length_num)[::-1]
+    for cnt in range(0, len(length_num) - 1):
+      if not is_divide(reverse_line, reverse_length_num[cnt], \
+        reverse_length_num[cnt + 1], reverse_hint[cnt]):
         return line
 
   tmp_line = np.copy(line)
@@ -349,6 +358,42 @@ def check_around_max(line, hint):
 
   return line
 
+#端の部分を埋める処理(左右から処理する必要あり)
+def fill_edge(line, hint):
+  sequential_filled_num_left = info.solved_sequential_certain_num_info(line)
+
+  tmp_hint = np.copy(hint)
+  for cnt in range(0, len(sequential_filled_num_left)):
+    tmp_hint = np.delete(tmp_hint, 0, 0)
+
+  if len(tmp_hint) == 0:
+    return line
+
+  pivot = 0
+  for i in range(0, len(line)):
+    if line[i] == co.UNSOLVED_NUM:
+      pivot = i
+      break
+
+  fill_flag = False
+  if pivot + tmp_hint[0] < len(line)\
+    and line[pivot + tmp_hint[0]] == co.NO_FILLED_NUM:
+    for i in range(pivot, pivot + tmp_hint[0]):
+      if line[i] == co.FILLED_NUM:
+        fill_flag = True
+        break
+
+  if pivot + tmp_hint[0] > len(line) - 1:
+    return line
+
+  for i in range(pivot, pivot + tmp_hint[0] - 1):
+    if fill_flag:
+      line[i] = co.FILLED_NUM
+    else:
+      if line[i] == co.FILLED_NUM:
+        fill_flag = True
+
+  return line
 
 #ヒントの数とNO_FILLEDマスで分割された区間の数が一致した際の処理
 def fill_divide_hint(line, hint):
@@ -434,7 +479,9 @@ def fourth_process(line, hint):
 #マスを推定して埋める処理
 def fifth_process(line, hint):
   #左右から行う必要がある処理
-
+  line = fill_edge(line, hint)
+  line = fill_edge(line[::-1], hint[::-1])
+  line = line[::-1]
 
   #一方向からで十分な処理
   line = fill_divide_justified(line, hint)
@@ -477,7 +524,7 @@ def filled_check(row_flag, col_flag):
   return True
 
 #ピクロスを回答する関数
-def solve_picross(row_hint, col_hint, row_length, col_length):
+def solve_picross(row_hint, col_hint, row_length, col_length, origin):
   #盤面
   boad = np.zeros(shape = (row_length, col_length))
   boad.fill(co.UNSOLVED_NUM)
@@ -503,19 +550,23 @@ def solve_picross(row_hint, col_hint, row_length, col_length):
         line = third_process(boad[i], row_hint[i])
         line = fourth_process(boad[i], row_hint[i])
         line = fifth_process(boad[i], row_hint[i])
+
+        error_check(line, origin[i], row_hint[i])
+
         if line_check(line):
           row_flag[i] = True
 
     #列方向の処理
-    #print("middle", boad[:,8], col_hint[8])
     for j in range(0, col_length):
       if not col_flag[j]:
         line = third_process(boad[:,j], col_hint[j])
         line = fourth_process(boad[:,j], col_hint[j])
         line = fifth_process(boad[:,j], col_hint[j])
+
+        error_check(line, origin[:,j], col_hint[j])
+
         if line_check(line):
           col_flag[j] = True
-    #print("after", boad[:,8], col_hint[8])
 
     if solve_cnt > co.MAX_LOOP_VERIFY:
       break
@@ -540,33 +591,14 @@ def picross_check(img):
 
 #テスト用関数
 def verify_test():
-  line = np.array([ 255,   -1,  -1,   0,  0,  0,  -1,   -1,  -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   0,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   0,   0,   -1,   -1,   -1,   -1,   -1,   -1,   0,   -1,   0,   -1,   -1,   255,   0,   0,   255])
-  hint = np.array([5, 1, 2, 2, 3, 2])
-
-
-  line = third_process(line, hint)
-  print(line)
-  #左右から行う必要がある処理
-  line = check_around_filled(line, hint)
-  line = check_around_filled(line[::-1],hint[::-1])
-  line = line[::-1]
-  line = check_sparse_justified(line, hint)
-  line = check_sparse_justified(line[::-1], hint[::-1])
-  line = line[::-1]
+  line = np.array( [ 255,  255,  255,  255,    0,    0,  255,   -1,   -1,   -1,   -1,   -1,   -1,   -1,  255,   -1,   -1,   -1,   -1,   -1,    0,   -1,    0,    0,   -1,   -1,   -1,   -1,    0,    0,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,  255,    0,    0,  255])
+  hint = np.array([2, 10, 2, 2, 3, 1, 1, 2])
 
   print(line)
-  #一方向からで十分な処理
-  line = check_sparse_min(line, hint)
-  line = check_around_max(line, hint)
+  line = fill_edge(line, hint)
   print(line)
-  length_num = info.filled_sequential_info(line)
-  print(length_num)
-  print(hint)
-  line = check_length(line, hint)
- 
-
-  print(line)
-  line = fifth_process(line, hint)
+  #line = third_process(line, hint)
+  #line = fifth_process(line, hint)
 
 
 #ピクロスが回答可能かどうかの検証用関数
@@ -590,6 +622,6 @@ def picross_verify(img, row_hint, col_hint):
 
   verify_test()
 
-  solve = solve_picross(tmp_row_hint, tmp_col_hint, row_length, col_length)
+  solve = solve_picross(tmp_row_hint, tmp_col_hint, row_length, col_length, img)
   picross_check(solve)
 

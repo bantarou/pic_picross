@@ -157,6 +157,11 @@ class boad_infomation:
       if cnt_flag:
         if line[i] == co.FILLED_NUM:
           continue_num += 1
+          if i + 1 > len(line) - 1:
+            solved_num.append(continue_num)
+            continue_num = 0
+            cnt_flag = False
+
         elif line[i] == co.NO_FILLED_NUM:
           solved_num.append(continue_num)
           continue_num = 0
