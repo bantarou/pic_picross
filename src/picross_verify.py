@@ -357,6 +357,59 @@ def check_around_max(line, hint):
         break
 
   return line
+  
+#ヒントの数とNO_FILLEDマスで分割された区間の数が一致した際のNO_FILLEDマスの推論処理
+def check_divide_hint(line, hint):
+  no_filled_sparse = info.no_filled_sparse_info(line)
+
+  exist_filled_cnt = 0
+  delete_num = []
+  for cnt in range(0, len(no_filled_sparse)):
+    for i in range(no_filled_sparse[cnt][0], no_filled_sparse[cnt][1]):
+      if line[i] == co.FILLED_NUM:
+        exist_filled_cnt += 1
+        break
+      elif i == no_filled_sparse[cnt][1] - 1:
+        delete_num.append(cnt)
+
+  no_filled_sparse = np.delete(no_filled_sparse, delete_num, 0)
+
+  tmp_line = np.copy(line)
+  if exist_filled_cnt == len(hint):
+    for cnt in range(0, len(hint)):
+      right_limit = no_filled_sparse[cnt][1]
+      right_pivot = 0
+      left_limit = no_filled_sparse[cnt][0]
+      left_pivot = 0
+
+      fill_flag = False
+      for i in range(left_limit, right_limit):
+        if fill_flag:
+          if line[i] != co.FILLED_NUM or i == right_limit - 1:
+            right_pivot = i - 1
+            break
+        else:
+          if line[i] == co.FILLED_NUM:
+            fill_flag = True
+            left_pivot = i
+            if i == right_limit - 1:
+              right_pivot = i
+              break
+
+      for i in range(0, hint[cnt]):
+        if right_pivot - i >= left_limit \
+          and tmp_line[right_pivot - i] == co.UNSOLVED_NUM:
+          tmp_line[right_pivot - i] = co.CHECK_NUM
+
+        if left_pivot + i < right_limit \
+          and tmp_line[left_pivot + i] == co.UNSOLVED_NUM:
+          tmp_line[left_pivot + i] = co.CHECK_NUM
+
+    for i in range(0, len(line)):
+      if line[i] == co.UNSOLVED_NUM and tmp_line[i] != co.CHECK_NUM:
+        line[i] = co.NO_FILLED_NUM
+
+  return line
 
 #端の部分を埋める処理(左右から処理する必要あり)
 def fill_edge(line, hint):
@@ -374,6 +427,9 @@ def fill_edge(line, hint):
     if line[i] == co.UNSOLVED_NUM:
       pivot = i
       break
+  #エラー回避処理
+  if pivot - 1 >= 0 and line[pivot - 1] == co.FILLED_NUM:
+    return line
 
   fill_flag = False
   if pivot + tmp_hint[0] < len(line)\
@@ -382,11 +438,10 @@ def fill_edge(line, hint):
       if line[i] == co.FILLED_NUM:
         fill_flag = True
         break
-
   if pivot + tmp_hint[0] > len(line) - 1:
     return line
 
-  for i in range(pivot, pivot + tmp_hint[0] - 1):
+  for i in range(pivot, pivot + tmp_hint[0]):
     if fill_flag:
       line[i] = co.FILLED_NUM
     else:
@@ -474,6 +529,7 @@ def fourth_process(line, hint):
   line = check_sparse_min(line, hint)
   line = check_around_max(line, hint)
   line = check_length(line, hint)
+  line = check_divide_hint(line, hint)
   return line
 
 #マスを推定して埋める処理
@@ -482,6 +538,7 @@ def fifth_process(line, hint):
   line = fill_edge(line, hint)
   line = fill_edge(line[::-1], hint[::-1])
   line = line[::-1]
+
 
   #一方向からで十分な処理
   line = fill_divide_justified(line, hint)
@@ -549,9 +606,8 @@ def solve_picross(row_hint, col_hint, row_length, col_length, origin):
       if not row_flag[i]:
         line = third_process(boad[i], row_hint[i])
         line = fourth_process(boad[i], row_hint[i])
-        line = fifth_process(boad[i], row_hint[i])
-
         error_check(line, origin[i], row_hint[i])
+        line = fifth_process(boad[i], row_hint[i])
 
         if line_check(line):
           row_flag[i] = True
@@ -561,9 +617,8 @@ def solve_picross(row_hint, col_hint, row_length, col_length, origin):
       if not col_flag[j]:
         line = third_process(boad[:,j], col_hint[j])
         line = fourth_process(boad[:,j], col_hint[j])
-        line = fifth_process(boad[:,j], col_hint[j])
-
         error_check(line, origin[:,j], col_hint[j])
+        line = fifth_process(boad[:,j], col_hint[j])
 
         if line_check(line):
           col_flag[j] = True
@@ -591,11 +646,13 @@ def picross_check(img):
 
 #テスト用関数
 def verify_test():
-  line = np.array( [ 255,  255,  255,  255,    0,    0,  255,   -1,   -1,   -1,   -1,   -1,   -1,   -1,  255,   -1,   -1,   -1,   -1,   -1,    0,   -1,    0,    0,   -1,   -1,   -1,   -1,    0,    0,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,  255,    0,    0,  255])
-  hint = np.array([2, 10, 2, 2, 3, 1, 1, 2])
+  line = np.array( [ 255,  255,  255,  255,    0,    0,  255,   -1,   -1,   -1,   -1,   -1,   -1,   -1,  255,   -1,   -1,   -1,   -1,   -1,    0,   -1,    0,    0,   -1,   -1,   -1,   -1,    0,    0,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,  -1,    0,    0,  -1])
+  hint = np.array([2, 10, 2, 2, 3, 1, 1, 4])
 
   print(line)
   line = fill_edge(line, hint)
+  line = fill_edge(line[::-1], hint[::-1])
+  line = line[::-1]
   print(line)
   #line = third_process(line, hint)
   #line = fifth_process(line, hint)
