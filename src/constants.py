@@ -15,7 +15,7 @@ class constans:
   #
 
   #検証用関数のループ上限
-  MAX_LOOP_VERIFY = 20
+  MAX_LOOP_VERIFY = 50
 
   #塗りつぶしを意味する数値
   FILLED_NUM = 0
