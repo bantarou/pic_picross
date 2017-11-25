@@ -28,8 +28,8 @@ class boad_check:
 
       reverse_line = np.copy(line)[::-1]
       reverse_hint = np.copy(hint)[::-1]
-      reverse_length_num = np.copy(length_num)[::-1]
-      for cnt in range(0, len(length_num) - 1):
+      reverse_length_num = info.filled_sequential_info(reverse_line)
+      for cnt in range(0, len(reverse_length_num) - 1):
         if not is_divide(reverse_line, reverse_length_num[cnt], \
           reverse_length_num[cnt + 1], reverse_hint[cnt]):
           return line

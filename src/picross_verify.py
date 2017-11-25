@@ -120,7 +120,9 @@ def fifth_process(line, hint):
   line = fill.fill_edge(line, hint)
   line = fill.fill_edge(line[::-1], hint[::-1])
   line = line[::-1]
-
+  line = fill.fill_no_filled_side(line, hint)
+  line = fill.fill_no_filled_side(line[::-1], hint[::-1])
+  line = line[::-1]
 
   #一方向からで十分な処理
   line = fill.fill_divide_justified(line, hint)
@@ -228,11 +230,12 @@ def picross_check(img):
 
 #テスト用関数
 def verify_test():
-  line = np.array( [ 255,  0,  255,  255,    0,    0,  255, 0, 0, 0, -1, -1, -1, 0, -1, -1, -1])
-  hint = np.array([1, 2, 3, 1, 1, 1])
+  line = np.array( [ 255,  0,  255,  255,    0,    0,  255, -1, -1, -1, 255, 0, 0, -1, -1, 0, -1, -1, -1, 255, 0, -1, -1, -1, -1, -1, 0, 0, -1, -1, -1, -1])
+  hint = np.array([1, 2, 1, 5, 4, 4])
 
   print(line)
   line = check.check_around_max(line, hint)
+  line = fill.fill_no_filled_side(line, hint)
   print(line)
   #line = third_process(line, hint)
   #line = fifth_process(line, hint)

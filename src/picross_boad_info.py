@@ -144,6 +144,11 @@ class boad_infomation:
           continue_cnt += 1
           start_num = i
           cnt_flag = True
+          if i == len(line) - 1:
+            tmp = []
+            tmp.append(continue_cnt)
+            tmp.append(start_num)
+            line_num.append(tmp)
 
     return line_num
   

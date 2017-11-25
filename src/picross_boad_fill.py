@@ -178,3 +178,69 @@ class boad_fill:
         line[i] = co.FILLED_NUM
 
     return line
+
+  #NO_FILLEDマスの隣にFILLEDマスが存在する時の処理(左右から処理する必要がある)
+  def fill_no_filled_side(line, hint):
+    sequential_filled_num_left = info.solved_sequential_certain_num_info(line)
+    sequential_filled_num_right = info.solved_sequential_certain_num_info(line[::-1])
+    filled_num = info.solved_uncertain_num_info(line)
+    tmp_hint = hint.copy()
+
+    if len(sequential_filled_num_left) + \
+      len(sequential_filled_num_right) >= len(hint):
+      return line
+
+    for cnt in range(0, len(sequential_filled_num_left)):
+      tmp_hint = np.delete(tmp_hint, 0, 0)
+      filled_num = np.delete(filled_num, 0, 0)
+
+    for cnt in range(0, len(sequential_filled_num_right)):
+      tmp_hint = np.delete(tmp_hint, len(tmp_hint) - 1, 0)
+      filled_num = np.delete(filled_num, len(filled_num) - 1, 0)
+
+    hint_cnt = 0
+    for cnt in range(0, len(filled_num) - 1):
+      if filled_num[cnt][1] - 1 >= 0 and \
+        line[filled_num[cnt][1] - 1] == co.NO_FILLED_NUM:
+        while True:
+          if hint_cnt >= len(tmp_hint):
+            return line
+
+          if filled_num[cnt][0] > tmp_hint[hint_cnt]:
+            hint_cnt += 1
+          else:
+            break
+
+        possible_hint = []
+        for cnt2 in range(hint_cnt, len(tmp_hint)):
+          filled_num_pivot = 0
+          for cnt3 in range(cnt, len(filled_num)):
+            if filled_num[cnt][1] + tmp_hint[cnt2] > filled_num[cnt3][1]:
+              filled_num_pivot = cnt3 + 1
+
+          if len(filled_num) - filled_num_pivot <= len(tmp_hint) - (cnt2 + 1):
+            possible_hint.append(tmp_hint[cnt2])
+
+        possible_num = 0
+        uncertain_flag = False
+        min_hint = 0
+        if len(possible_hint) > 0:
+          possible_num = possible_hint[0]
+          min_hint = min(possible_hint)
+
+        for cnt2 in range(0, len(possible_hint)):
+          if possible_hint[0] != possible_hint[cnt2]:
+            uncertain_flag = True
+            break
+
+        renge_top = filled_num[cnt][1] + min_hint
+        renge_bottom = filled_num[cnt][1]
+        for i in range(renge_bottom, renge_top):
+          line[i] = co.FILLED_NUM
+        if not uncertain_flag:
+          if renge_top < len(line):
+            line[renge_top] = co.NO_FILLED_NUM
+
+        hint_cnt += 1
+
+    return line
