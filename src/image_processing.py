@@ -17,9 +17,10 @@ def reverse_bw(img):
   return img
 
 #線をモザイクに変換する関数
-def line_to_mosaic(img, box_size, zero_rate):
-  y_length = (int)(len(img) / box_size)
-  x_length = (int)(len(img[0]) / box_size)
+def line_to_mosaic(img, col_length, zero_rate):
+  box_size = (int)(len(img) / col_length)
+  y_length = col_length
+  x_length = (int)(len(img[0]) / len(img) * col_length)
   mosaic = np.zeros(shape = (y_length, x_length))
 
   for y in range(0, y_length):
@@ -41,9 +42,9 @@ def line_to_mosaic(img, box_size, zero_rate):
 #入力された画像のパスからピクロス用のモザイクデータを出力する関数
 ## img_path:画像のファイルパス
 ## blur_times:ぼかし処理の回数
-## box_size:一つのマスが対応する画像の範囲
+## col_length:列方向の長さ
 ## zero_rate:黒マスと判断するための閾値
-def convert_mosaic(img_path, blur_times, box_size, zero_rate):
+def convert_mosaic(img_path, blur_times, col_length, zero_rate):
   img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
   #画像を二値化
   img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
@@ -55,6 +56,6 @@ def convert_mosaic(img_path, blur_times, box_size, zero_rate):
   #画像のネガポジを反転
   img = reverse_bw(img)
   #画像のモザイク処理
-  img = line_to_mosaic(img, box_size, zero_rate)
+  img = line_to_mosaic(img, col_length, zero_rate)
 
   return img

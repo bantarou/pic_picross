@@ -123,7 +123,6 @@ def fifth_process(line, hint):
   line = fill.fill_no_filled_side(line, hint)
   line = fill.fill_no_filled_side(line[::-1], hint[::-1])
   line = line[::-1]
-
   #一方向からで十分な処理
   line = fill.fill_divide_justified(line, hint)
   line = fill.fill_divide_hint(line, hint)
@@ -189,8 +188,8 @@ def solve_picross(row_hint, col_hint, row_length, col_length, origin):
     for i in range(0, row_length):
       if not row_flag[i]:
         line = third_process(boad[i], row_hint[i])
-        error_check(line, origin[i], row_hint[i])
         line = fourth_process(boad[i], row_hint[i])
+        error_check(line, origin[i], row_hint[i])
         line = fifth_process(boad[i], row_hint[i])
 
         if line_check(line):

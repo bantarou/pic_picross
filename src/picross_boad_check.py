@@ -10,7 +10,11 @@ class boad_check:
   def check_length(line, hint):
 
     def is_divide(line, length_1, length_2, hint_num):
-      for i in range(length_1[1], length_1[1] + hint_num):
+      renge_top = length_1[1] + hint_num
+      if renge_top > len(line):
+        renge_top = len(line)
+
+      for i in range(length_1[1], renge_top):
         if line[i] == co.NO_FILLED_NUM:
           return True
       if length_1[1] + hint_num < length_2[1]:
@@ -20,7 +24,7 @@ class boad_check:
 
     length_num = info.filled_sequential_info(line)
 
-     #重複している塊が存在した場合処理を停止
+    #重複している塊が存在した場合処理を停止
     if len(length_num) == len(hint):
       for cnt in range(0, len(length_num) - 1):
         if not is_divide(line, length_num[cnt],length_num[cnt + 1], hint[cnt]):

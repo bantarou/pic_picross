@@ -230,8 +230,22 @@ class boad_fill:
           filled_num_pivot = 0
           hint_sum = 0
           for cnt3 in range(cnt, len(filled_num)):
-            if filled_num[cnt][1] + tmp_hint[cnt2] > filled_num[cnt3][1]:
-              filled_num_pivot = cnt3 + 1
+            times = 0
+            while True:
+              if cnt + times > len(filled_num) - 1 or \
+                cnt2 + times > len(tmp_hint) - 1:
+                break
+
+              if filled_num[cnt + times][1] + tmp_hint[cnt2 + times] > \
+                filled_num[cnt3][1]:
+                filled_num_pivot = cnt3 + 1
+
+              times += 1
+            #if filled_num[cnt][1] + tmp_hint[cnt2] > filled_num[cnt3][1]:
+            #  filled_num_pivot = cnt3 + 1
+            #if cnt + 1 < len(filled_num) and cnt2 + 1 < len(tmp_hint):
+            #  if filled_num[cnt + 1][1] + tmp_hint[cnt2 + 1] > filled_num[cnt3][1]:
+            #    filled_num_pivot = cnt3 + 1
 
           if len(filled_num) - filled_num_pivot <= len(tmp_hint) - (cnt2 + 1):
             possible_hint.append(tmp_hint[cnt2])
