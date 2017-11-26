@@ -19,8 +19,8 @@ def reverse_bw(img):
 #線をモザイクに変換する関数
 def line_to_mosaic(img, col_length, zero_rate):
   box_size = (int)(len(img) / col_length)
-  y_length = col_length
-  x_length = (int)(len(img[0]) / len(img) * col_length)
+  y_length = (int)(len(img) / box_size)
+  x_length = (int)(len(img[0]) / box_size)
   mosaic = np.zeros(shape = (y_length, x_length))
 
   for y in range(0, y_length):
