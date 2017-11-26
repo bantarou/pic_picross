@@ -140,7 +140,7 @@ class boad_check:
             max_span = span_cnt
 
           if span_cnt == 0:
-            if hint[hint_num] == continue_cnt and max_span <= hint[hint_num]:
+            if hint[hint_num] == continue_cnt and max_span < hint[hint_num]:
               line[i] = co.NO_FILLED_NUM
               contiue_cnt = max_span = span_cnt = 0
               cnt_flag = False
