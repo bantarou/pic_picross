@@ -189,9 +189,9 @@ def solve_picross(row_hint, col_hint, row_length, col_length, origin):
     for i in range(0, row_length):
       if not row_flag[i]:
         line = third_process(boad[i], row_hint[i])
+        error_check(line, origin[i], row_hint[i])
         line = fourth_process(boad[i], row_hint[i])
         line = fifth_process(boad[i], row_hint[i])
-        error_check(line, origin[i], row_hint[i])
 
         if line_check(line):
           row_flag[i] = True
@@ -201,8 +201,8 @@ def solve_picross(row_hint, col_hint, row_length, col_length, origin):
       if not col_flag[j]:
         line = third_process(boad[:,j], col_hint[j])
         line = fourth_process(boad[:,j], col_hint[j])
-        line = fifth_process(boad[:,j], col_hint[j])
         error_check(line, origin[:,j], col_hint[j])
+        line = fifth_process(boad[:,j], col_hint[j])
 
         if line_check(line):
           col_flag[j] = True

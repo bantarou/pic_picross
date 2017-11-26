@@ -109,15 +109,12 @@ class boad_check:
     for cnt in range(0, len(sequential_filled_num_right)):
       tmp_hint = np.delete(tmp_hint, len(tmp_hint) - 1, 0)
 
+    if len(sparse_num) > 0:
+      if sparse_num[0][1] - sparse_num[0][0] < tmp_hint[0] \
+        and line_test(line, sparse_num[0][0]):
 
-    for cnt in range(0, len(sparse_num)):
-      if sparse_num[cnt][1] - sparse_num[cnt][0] < tmp_hint[0] \
-        and line_test(line, sparse_num[cnt][0]):
-
-        for i in range(sparse_num[cnt][0], sparse_num[cnt][1]):
+        for i in range(sparse_num[0][0], sparse_num[0][1]):
           line[i] = co.NO_FILLED_NUM
-      else:
-        break
 
     return line
 
