@@ -47,7 +47,7 @@ def secound_process(boad, row_hint, col_hint):
 
   #行方向の処理
   for i in range(0, row_length):
-    line = fill.calc_marge_part(row_hint[i], row_length)
+    line = fill.calc_marge_part(row_hint[i], col_length)
 
     for j in range(0, len(line)):
       if line[j] == co.FILLED_NUM:
@@ -55,7 +55,7 @@ def secound_process(boad, row_hint, col_hint):
 
   #列方向の処理
   for j in range(0, col_length):
-    line = fill.calc_marge_part(col_hint[j], col_length)
+    line = fill.calc_marge_part(col_hint[j], row_length)
 
     for i in range(0, len(line)):
       if line[i] == co.FILLED_NUM:
