@@ -9,33 +9,46 @@ class boad_check:
   #確実に黒マスが届かないマスの処理
   def check_length(line, hint):
 
-    def is_divide(line, length_1, length_2, hint_num):
-      renge_top = length_1[1] + hint_num
-      if renge_top > len(line):
-        renge_top = len(line)
+    def is_divide(line, length_1, length_2, hint):
+      for cnt in range(0, len(hint)):
+        renge_top = length_1[1] + hint[cnt]
+        if renge_top > len(line):
+          renge_top = len(line)
 
-      for i in range(length_1[1], renge_top):
-        if line[i] == co.NO_FILLED_NUM:
-          return True
-      if length_1[1] + hint_num < length_2[1]:
-        return True
+        for i in range(length_1[1], renge_top):
+          if line[i] == co.NO_FILLED_NUM:
+            return True
+        if length_1[1] + hint[cnt] >= length_2[1]:
+          return False
 
-      return False
+      return True
 
     length_num = info.filled_sequential_info(line)
+    sequential_filled_num_left = info.solved_sequential_certain_num_info(line)
+    sequential_filled_num_right = info.solved_sequential_certain_num_info(line[::-1])
+    tmp_hint = hint.copy()
+
+    if len(sequential_filled_num_left) + \
+      len(sequential_filled_num_right) >= len(hint):
+      return line
+
+    for cnt in range(0, len(sequential_filled_num_left)):
+      tmp_hint = np.delete(tmp_hint, 0, 0)
+
+    for cnt in range(0, len(sequential_filled_num_right)):
+      tmp_hint = np.delete(tmp_hint, len(tmp_hint) - 1, 0)
 
     #重複している塊が存在した場合処理を停止
     if len(length_num) == len(hint):
       for cnt in range(0, len(length_num) - 1):
-        if not is_divide(line, length_num[cnt],length_num[cnt + 1], hint[cnt]):
+        if not is_divide(line, length_num[cnt], length_num[cnt + 1], tmp_hint):
           return line
 
       reverse_line = np.copy(line)[::-1]
-      reverse_hint = np.copy(hint)[::-1]
       reverse_length_num = info.filled_sequential_info(reverse_line)
       for cnt in range(0, len(reverse_length_num) - 1):
         if not is_divide(reverse_line, reverse_length_num[cnt], \
-          reverse_length_num[cnt + 1], reverse_hint[cnt]):
+          reverse_length_num[cnt + 1], tmp_hint[::-1]):
           return line
 
     tmp_line = np.copy(line)
