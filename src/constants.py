@@ -31,9 +31,9 @@ class constans:
   #
 
   #普通の線の太さ
-  NORMAL_LINE_SIZE = 0.5
+  NORMAL_LINE_SIZE = 1
   #太線の太さ
-  BOLD_LINE_SIZE = 1.5
+  BOLD_LINE_SIZE = 2
   #太線を引く間隔
   BOLD_LINE_SPAN = 5
 
@@ -43,14 +43,18 @@ class constans:
   #ヒントのフォント
   HINT_FONT = 'fixsys'
   #ヒントのフォントサイズ
-  HINT_FONT_SIZE = 6
+  HINT_FONT_SIZE = 0.275
+  HINT_FONT_WIDTH = 1
   #ヒント部分と線とのマージンの長さ
-  ROW_HINT_LINE_HEIGHT_MARGIN = 1.5
-  ROW_HINT_LINE_WIDTH_MARGIN = 5
+  ROW_HINT_LINE_HEIGHT_MARGIN = 9
+  ROW_HINT_LINE_WIDTH_MARGIN = 10
   COLUMN_HINT_LINE_HEIGHT_MARGIN = 5
-  COLUMN_HINT_LINE_WIDTH_MARGIN = 5
-  #列方向のヒントの各数値の間隔
-  COLUMN_HINT_NUM_MARGIN = 9
+  COLUMN_HINT_LINE_WIDTH_MARGIN = 3
+  #ヒントの各数値の間隔
+  ROW_HINT_MARGIN = 5
+  COLUMN_HINT_MARGIN = 9
+  #縦方向のヒントが10以上である場合の間隔
+  COLUMN_HINT_DIGIT_MARGIN = 3
 
   #ヒントとなる数字の1文字あたりの表示領域
   HINT_MARGIN_WIDTH = 6
