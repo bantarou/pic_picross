@@ -15,6 +15,12 @@ class boad_infomation:
       if cnt_flag:
         if line[i] == co.FILLED_NUM:
           continue_num += 1
+          if i == len(line) - 1:
+            tmp = []
+            tmp.append(continue_num)
+            tmp.append(start_num)
+            length_num.append(tmp)
+
         else:
           tmp = []
           tmp.append(continue_num)
@@ -28,8 +34,13 @@ class boad_infomation:
           start_num = i
           continue_num += 1
           cnt_flag = True
+          if i == len(line) - 1:
+            tmp = []
+            tmp.append(continue_num)
+            tmp.append(start_num)
+            length_num.append(tmp)
 
-    return  length_num
+    return length_num
 
   #UNSOLVEDマスの開始位置と連続数を返す処理
   def unsolved_sequential_point_info(line):

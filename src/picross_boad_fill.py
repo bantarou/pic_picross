@@ -46,9 +46,9 @@ class boad_fill:
         ans[i] = tmp1[i]
       else:
         ans[i] = co.UNSOLVED_NUM
-  
+
     return ans
-  
+
 
   #埋まっているマスの合計あるいは未確定マスの合計がヒントの合計と一致した場合の処理
   def fill_line(line, hint):
@@ -179,6 +179,67 @@ class boad_fill:
 
     return line
 
+  #NO_FILLEDマスで分割された各部分に対してヒントの共通部分を出力する(左右から処理する必要あり)(TODO:)
+  def fill_divide_marge(line, hint):
+    #確定したヒントを削除
+    sequential_filled_num_left = info.solved_sequential_certain_num_info(line)
+    sequential_filled_num_right = info.solved_sequential_certain_num_info(line[::-1])
+    tmp_hint = hint.copy()
+
+    if len(sequential_filled_num_left) + \
+      len(sequential_filled_num_right) >= len(hint):
+      return line
+
+    for cnt in range(0, len(sequential_filled_num_left)):
+      tmp_hint = np.delete(tmp_hint, 0, 0)
+
+    for cnt in range(0, len(sequential_filled_num_right)):
+      tmp_hint = np.delete(tmp_hint, len(tmp_hint) - 1, 0)
+
+    no_filled_sparse = info.no_filled_sparse_info(line)
+
+    for cnt in range(0, len(no_filled_sparse)):
+      unsolve_flag = False
+      solve_flag = False
+      tmp_array = no_filled_sparse[cnt]
+      for i in range(tmp_array[0], tmp_array[1]):
+        if line[i] == co.UNSOLVED_NUM:
+          unsolve_flag = True
+        if line[i] == co.FILLED_NUM:
+          solve_flag = True
+
+      if unsolve_flag:
+        tmp_line = line[tmp_array[0] : tmp_array[1]]
+        check_flag = False
+        start_num = 0
+        end_num = 0
+        for i in range(0, len(tmp_line)):
+          if tmp_line[i] == co.FILLED_NUM:
+            if check_flag:
+              end_num = i
+            else:
+              start_num = i
+              end_num = i
+              check_flag = True
+
+        sequence_num = end_num - start_num + 1
+        calc_line = []
+        if solve_flag:
+          if sequence_num > tmp_hint[0]:
+            calc_line = boad_fill.calc_marge_part(tmp_hint[0:2], \
+              tmp_array[1] - tmp_array[0])
+          else:
+            calc_line = boad_fill.calc_marge_part(tmp_hint[0:1], \
+              tmp_array[1] - tmp_array[0])
+
+          for i in range(0, len(calc_line)):
+            if calc_line[i] == co.FILLED_NUM:
+              line[tmp_array[0] + i] = calc_line[i]
+
+        break
+
+    return line
+
   #NO_FILLEDマスの隣にFILLEDマスが存在する時の処理(左右から処理する必要がある)
   def fill_no_filled_side(line, hint):
     sequential_filled_num_left = info.solved_sequential_certain_num_info(line)
@@ -241,11 +302,6 @@ class boad_fill:
                 filled_num_pivot = cnt3 + 1
 
               times += 1
-            #if filled_num[cnt][1] + tmp_hint[cnt2] > filled_num[cnt3][1]:
-            #  filled_num_pivot = cnt3 + 1
-            #if cnt + 1 < len(filled_num) and cnt2 + 1 < len(tmp_hint):
-            #  if filled_num[cnt + 1][1] + tmp_hint[cnt2 + 1] > filled_num[cnt3][1]:
-            #    filled_num_pivot = cnt3 + 1
 
           if len(filled_num) - filled_num_pivot <= len(tmp_hint) - (cnt2 + 1):
             possible_hint.append(tmp_hint[cnt2])
