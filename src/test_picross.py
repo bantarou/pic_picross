@@ -14,7 +14,7 @@ GRAY_WINDOW_NAME = "gray"
 CANNY_WINDOW_NAME = "canny"
 MOSAIC_WINDOW_NAME = "mosaic"
 
-ORG_FILE_NAME = "../img/test2.png"
+ORG_FILE_NAME = "../img/test1.png"
 GRAY_FILE_NAME = "../img/gray.png"
 CANNY_FILE_NAME = "../img/canny.png"
 MOSAIC_FILE_NAME = "../img/mosaic.png"
@@ -30,7 +30,7 @@ gray_img = blur_image(gray_img, 1)
 # エッジ抽出
 canny_img = cv2.Canny(gray_img, 50, 120)
 
-mosaic_img = convert_mosaic(ORG_FILE_NAME, 0, 45, 0.0002)
+mosaic_img = convert_mosaic(ORG_FILE_NAME, 0, 12, 0.0002)
 
 draw_main(mosaic_img, 11)
 
