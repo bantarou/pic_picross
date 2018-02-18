@@ -14,10 +14,10 @@ GRAY_WINDOW_NAME = "gray"
 CANNY_WINDOW_NAME = "canny"
 MOSAIC_WINDOW_NAME = "mosaic"
 
-ORG_FILE_NAME = "../img/test1.png"
-GRAY_FILE_NAME = "../img/gray.png"
-CANNY_FILE_NAME = "../img/canny.png"
-MOSAIC_FILE_NAME = "../img/mosaic.png"
+ORG_FILE_NAME = "../test_img/test1.png"
+GRAY_FILE_NAME = "../test_img/gray.png"
+CANNY_FILE_NAME = "../test_img/canny.png"
+MOSAIC_FILE_NAME = "../test_img/mosaic.png"
 
 
 # 元の画像を読み込む

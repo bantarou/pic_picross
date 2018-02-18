@@ -2,7 +2,6 @@
 import cv2
 import numpy as np
 import sys
-import tkinter
 
 from constants import constans as co
 from picross_processing import *
@@ -80,26 +79,33 @@ def draw_main(img, box_size):
   column_num_length = calc_pic_num_length(column_hint)
 
   #ピクロスが回答可能かの検証
-  picross_verify(img, row_hint, column_hint)
+  is_solved_flag = picross_verify(img, row_hint, column_hint)
 
-  #ヒント部分の長さ
-  hint_width = row_num_length * co.HINT_MARGIN_WIDTH
-  hint_height = column_num_length * co.HINT_MARGIN_WIDTH
-
-  pic_width = len(img[0]) * box_size + hint_width
-  pic_height = len(img) * box_size + hint_height
-  #
-  # GUI設定
-  #
-  size = (pic_height + co.WINDOW_MARGIN_HEIGHT, pic_width + co.WINDOW_MARGIN_WIDTH, 3)
-  # np.fillで白に埋める
-  picross_img = np.zeros(size, dtype=np.uint8)
-  picross_img.fill(255)
-
-  #ピクロスのドット部を描画
-  draw_pic_dot(picross_img, img, box_size, hint_width, hint_height)
-  draw_pic_line(picross_img, img, box_size, hint_width, hint_height)
-  draw_pic_hint(picross_img, img, box_size, hint_width, hint_height, row_hint, column_hint)
+  if is_solved_flag:
+    #ヒント部分の長さ
+    hint_width = row_num_length * co.HINT_MARGIN_WIDTH
+    hint_height = column_num_length * co.HINT_MARGIN_WIDTH
   
-  cv2.namedWindow("Picross Image", cv2.WINDOW_AUTOSIZE)
-  cv2.imshow("Picross Image",picross_img)
+    pic_width = len(img[0]) * box_size + hint_width
+    pic_height = len(img) * box_size + hint_height
+    #
+    # GUI設定
+    #
+    size = (pic_height + co.WINDOW_MARGIN_HEIGHT, pic_width + co.WINDOW_MARGIN_WIDTH, 3)
+    # np.fillで白に埋める
+    picross_img = np.zeros(size, dtype=np.uint8)
+    picross_img.fill(255)
+  
+    #ピクロスのドット部を描画
+    ##記入用紙の作成
+    draw_pic_line(picross_img, img, box_size, hint_width, hint_height)
+    draw_pic_hint(picross_img, img, box_size, hint_width, hint_height, row_hint, column_hint)
+    cv2.imwrite("../img/picross_paper.png", picross_img)
+    ##答えの保存
+    draw_pic_dot(picross_img, img, box_size, hint_width, hint_height)
+    cv2.imwrite("../img/picross_ans.png", picross_img)
+  
+    cv2.namedWindow("Picross Image", cv2.WINDOW_AUTOSIZE)
+    cv2.imshow("Picross Image",picross_img)
+  else:
+    print("Error: Sorry, we could not make the solvable picross in this picture.")

@@ -213,7 +213,7 @@ def solve_picross(row_hint, col_hint, row_length, col_length, origin):
       break
     solve_cnt += 1
 
-  return boad
+  return boad, filled_check(row_flag, col_flag)
 
 #ピクロスの確認用関数
 def picross_check(img):
@@ -258,5 +258,7 @@ def picross_verify(img, row_hint, col_hint):
     hint = list(map(int, hint))
     tmp_col_hint.append(hint)
 
-  solve = solve_picross(tmp_row_hint, tmp_col_hint, row_length, col_length, img)
+  solve, is_solved_flag = solve_picross(tmp_row_hint, tmp_col_hint, row_length, col_length, img)
   picross_check(solve)
+
+  return is_solved_flag
