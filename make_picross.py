@@ -16,3 +16,7 @@ if __name__ == '__main__' :
   mosaic_img = convert_mosaic(img, 0, size, 0.0002)
 
   draw_main(mosaic_img, 11)
+  cv2.imwrite("./img/picross_ans.png", mosaic_img)
+  
+  cv2.waitKey(0)
+  cv2.destroyAllWindows()

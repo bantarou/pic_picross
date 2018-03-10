@@ -1,4 +1,5 @@
 #encoding:utf-8
+import os
 import cv2
 import numpy as np
 import sys
@@ -97,15 +98,21 @@ def draw_main(img, box_size):
     picross_img.fill(255)
   
     #ピクロスのドット部を描画
+    ##保存用ディレクトリの作成
+    if not os.path.exists("./img"):
+      os.mkdir("./img")
+
     ##記入用紙の作成
     draw_pic_line(picross_img, img, box_size, hint_width, hint_height)
     draw_pic_hint(picross_img, img, box_size, hint_width, hint_height, row_hint, column_hint)
-    cv2.imwrite("../img/picross_paper.png", picross_img)
+    cv2.namedWindow("Picross Paper Image", cv2.WINDOW_AUTOSIZE)
+    cv2.imshow("Picross Paper Image",picross_img)
+    cv2.imwrite("./img/picross_paper.png", picross_img)
+
     ##答えの保存
-    draw_pic_dot(picross_img, img, box_size, hint_width, hint_height)
-    cv2.imwrite("../img/picross_ans.png", picross_img)
-  
-    cv2.namedWindow("Picross Image", cv2.WINDOW_AUTOSIZE)
-    cv2.imshow("Picross Image",picross_img)
+    draw_pic_dot(picross_img, img, box_size, hint_width, hint_height) 
+    cv2.namedWindow("Picross Answer Image", cv2.WINDOW_AUTOSIZE)
+    cv2.imshow("Picross Answer Image",picross_img)
+    cv2.imwrite("./img/picross_ans.png", picross_img)
   else:
     print("Error: Sorry, we could not make the solvable picross in this picture.")
