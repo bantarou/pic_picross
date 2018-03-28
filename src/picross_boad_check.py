@@ -15,11 +15,11 @@ class boad_check:
         if renge_top > len(line):
           renge_top = len(line)
 
+        if length_1[1] + hint[cnt] >= length_2[1]:
+          return False
         for i in range(length_1[1], renge_top):
           if line[i] == co.NO_FILLED_NUM:
             return True
-        if length_1[1] + hint[cnt] >= length_2[1]:
-          return False
 
       return True
 
