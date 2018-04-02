@@ -44,20 +44,24 @@ def line_to_mosaic(img, col_length, zero_rate):
 ## blur_times:ぼかし処理の回数
 ## col_length:列方向の長さ
 ## zero_rate:黒マスと判断するための閾値
-def convert_mosaic(img_path, blur_times, col_length, zero_rate, reverse_flag):
+def convert_mosaic(img_path, blur_times, col_length, zero_rate,binarize_flag, reverse_flag):
   img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
   #画像を二値化
   img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
 
   #画像のぼかし処理
   img = blur_image(img, blur_times)
-  #画像のエッジを抽出
-  img = cv2.Canny(img, 50, 120)
-  #画像のネガポジを反転
-  img = reverse_bw(img)
+
+  if not binarize_flag:
+    #画像のエッジを抽出
+    img = cv2.Canny(img, 50, 120)
+    #画像のネガポジを反転
+    img = reverse_bw(img)
+
   #画像のモザイク処理
   img = line_to_mosaic(img, col_length, zero_rate)
 
+  #画像の反転
   if reverse_flag:
     img = reverse_bw(img)
 
