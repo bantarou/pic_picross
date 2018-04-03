@@ -6,7 +6,6 @@ import argparse
 sys.path.append('./src')
 
 from image_processing import ImageProcessing
-from picross_graphic import *
 from picross_processing import *
 
 if __name__ == '__main__' :

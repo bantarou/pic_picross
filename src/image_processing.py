@@ -6,7 +6,7 @@ class ImageProcessing:
   __img = []
   __img_path = ""
   __blur_times = 0
-  __size = 10
+  __size = 5
   __zero_rato = 0.0002
 
   __binarize_flag = False
