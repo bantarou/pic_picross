@@ -6,7 +6,7 @@ import argparse
 sys.path.append('./src')
 
 from image_processing import ImageProcessing
-from picross_processing import *
+from picross_processing import PicrossProcessing
 
 if __name__ == '__main__' :
 
@@ -49,7 +49,9 @@ if __name__ == '__main__' :
   img_processor.set_flags(binarize_flag, reverse_flag, show_flag)
   mosaic_img = img_processor.convert_mosaic()
 
-  draw_main(mosaic_img, 11)
+  #ピクロスの生成と描画処理
+  picross_processor = PicrossProcessing(mosaic_img, 11)
+  picross_processor.draw_main()
 
   cv2.waitKey(0)
   cv2.destroyAllWindows()
