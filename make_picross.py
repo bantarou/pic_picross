@@ -24,6 +24,7 @@ if __name__ == '__main__' :
   parser.add_argument('picross_size', help='picross size', type=int)
   parser.add_argument('-r', '--reverse', help='Reverse white and black area.', action='store_true')
   parser.add_argument('-b', '--binarize', help='Binarize the image', action='store_true')
+  parser.add_argument('-s', '--show', help='Show the image', action='store_true')
 
   # 引数の解析
   args = parser.parse_args()
@@ -32,17 +33,21 @@ if __name__ == '__main__' :
   binarize_flag = False
   #画像データの反転用フラグ
   reverse_flag = False
+  #各種画像を表示するフラグ
+  show_flag = False
   if args.binarize:
     binarize_flag = True
   if args.reverse:
     reverse_flag = True
+  if args.show:
+    show_flag = True
 
   img_path = args.image_file_path
   size = args.picross_size
 
   #画像を0と255の二値データに変換
   img_processor = ImageProcessing(img_path, 0, size, 0.0002)
-  img_processor.set_flags(binarize_flag, reverse_flag)
+  img_processor.set_flags(binarize_flag, reverse_flag, show_flag)
   mosaic_img = img_processor.convert_mosaic()
 
   draw_main(mosaic_img, 11)

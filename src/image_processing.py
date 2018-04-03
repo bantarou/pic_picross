@@ -4,7 +4,6 @@ import numpy as np
 
 class ImageProcessing:
   __img = []
-  __mosaic_img = []
   __img_path = ""
   __blur_times = 0
   __size = 10
@@ -12,6 +11,7 @@ class ImageProcessing:
 
   __binarize_flag = False
   __reverse_flag = False
+  __show_flag = False
 
   def __init__(self, img_path, blur_times, size, zero_rate):
     self.__img_path = img_path
@@ -21,9 +21,10 @@ class ImageProcessing:
     #画像を二値化
     self.__img = cv2.imread(self.__img_path, cv2.IMREAD_GRAYSCALE)
 
-  def set_flags(self, binarize_flag, reverse_flag):
+  def set_flags(self, binarize_flag, reverse_flag, show_flag):
     self.__binarize_flag = binarize_flag
     self.__reverse_flag = reverse_flag
+    self.__show_flag = show_flag
 
   #画像をぼかす関数
   def __blur_image(self):
@@ -41,7 +42,8 @@ class ImageProcessing:
   
   #線をモザイクに変換する関数
   def __line_to_mosaic(self):
-    box_size = (int)(len(self.__img) / self.__size)
+    #box_size = (int)(len(self.__img) / self.__size)
+    box_size = self.__size
     y_length = (int)(len(self.__img) / box_size)
     x_length = (int)(len(self.__img[0]) / box_size)
     mosaic = np.zeros(shape = (y_length, x_length))
@@ -60,7 +62,7 @@ class ImageProcessing:
         else:
           mosaic[y][x] = 255
 
-    self.__mosaic_img = mosaic
+    self.__img = mosaic
 
   def convert_mosaic(self):
     #画像のぼかし処理
@@ -72,6 +74,10 @@ class ImageProcessing:
       #画像のネガポジを反転
       self.__reverse_bw()
 
+    #モザイク処理前の画像を表示
+    if self.__show_flag:
+      cv2.imshow("Before Mosaic Proccessing Image", self.__img)
+
     #画像のモザイク処理
     self.__line_to_mosaic()
 
@@ -79,4 +85,8 @@ class ImageProcessing:
     if self.__reverse_flag:
       self.__reverse_bw()
 
-    return self.__mosaic_img
+    #モザイク処理後の画像を表示
+    if self.__show_flag:
+      cv2.imshow("Aftar Mosaic Proccessing Image", self.__img)
+
+    return self.__img
