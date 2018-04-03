@@ -5,7 +5,7 @@ import numpy as np
 import argparse
 sys.path.append('./src')
 
-from image_processing import *
+from image_processing import ImageProcessing
 from picross_graphic import *
 from picross_processing import *
 
@@ -37,12 +37,15 @@ if __name__ == '__main__' :
   if args.reverse:
     reverse_flag = True
 
-  img = args.image_file_path
+  img_path = args.image_file_path
   size = args.picross_size
 
-  mosaic_img = convert_mosaic(img, 0, size, 0.0002, binarize_flag, reverse_flag)
+  #画像を0と255の二値データに変換
+  img_processor = ImageProcessing(img_path, 0, size, 0.0002)
+  img_processor.set_flags(binarize_flag, reverse_flag)
+  mosaic_img = img_processor.convert_mosaic()
 
   draw_main(mosaic_img, 11)
-  
+
   cv2.waitKey(0)
   cv2.destroyAllWindows()
