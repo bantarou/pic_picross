@@ -17,8 +17,8 @@ pic_picross
 コードを実行するとimgディレクトリが生成され、それ以下に作成したピクロスの画像データが保存されます。
 
 ## Example
-`$ python3 make_picross.py test_img/test1.png 20`
+`$ python3 make_picross.py test_img/test1.png 5`
 ![test1](https://github.com/bantarou/image/blob/master/pic_picross_test1.png)
 
-`$ python3 make_picross.py -r test_img/test2.png 45`
+`$ python3 make_picross.py -b test_img/test2.png 5`
 ![test2](https://github.com/bantarou/image/blob/master/pic_picross_test2.png)
