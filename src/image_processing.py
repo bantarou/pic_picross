@@ -5,6 +5,8 @@ import numpy as np
 class ImageProcessing:
   __img = []
   __img_path = ""
+  __img_width = 0
+  __img_height = 0
   __blur_times = 0
   __size = 5
   __zero_rato = 0.0002
@@ -18,8 +20,11 @@ class ImageProcessing:
     self.__blur_times = blur_times
     self.__size = size
     self.__zero_rate = zero_rate
+
     #画像を二値化
     self.__img = cv2.imread(self.__img_path, cv2.IMREAD_GRAYSCALE)
+    self.__img_width = len(self.__img[0])
+    self.__img_height = len(self.__img)
 
   def set_flags(self, binarize_flag, reverse_flag, show_flag):
     self.__binarize_flag = binarize_flag
@@ -87,6 +92,8 @@ class ImageProcessing:
 
     #モザイク処理後の画像を表示
     if self.__show_flag:
-      cv2.imshow("Aftar Mosaic Proccessing Image", self.__img)
+      dot_img = cv2.resize(self.__img,(self.__img_width, self.__img_height))
+      cv2.imshow("Aftar Mosaic Proccessing Image", dot_img)
+      cv2.imwrite("./img/picross_dot.png", dot_img)
 
     return self.__img

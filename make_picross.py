@@ -23,7 +23,7 @@ if __name__ == '__main__' :
   parser.add_argument('picross_size', help='picross size', type=int)
   parser.add_argument('-r', '--reverse', help='Reverse white and black area.', action='store_true')
   parser.add_argument('-b', '--binarize', help='Binarize the image', action='store_true')
-  parser.add_argument('-s', '--show', help='Show the image', action='store_true')
+  parser.add_argument('-s', '--show', help='Show the image and save the dot image', action='store_true')
 
   # 引数の解析
   args = parser.parse_args()
