@@ -92,8 +92,13 @@ class ImageProcessing:
 
     #モザイク処理後の画像を表示
     if self.__show_flag:
-      dot_img = cv2.resize(self.__img,(self.__img_width, self.__img_height))
+      dot_img = cv2.resize(self.__img, (self.__img_width, self.__img_height))
       cv2.imshow("Aftar Mosaic Proccessing Image", dot_img)
       cv2.imwrite("./img/picross_dot.png", dot_img)
+
+      dot_img = cv2.imread("./img/picross_dot.png")
+      original_img = cv2.imread(self.__img_path)
+      marge_img = cv2.hconcat([original_img, dot_img])
+      cv2.imwrite("./img/picross_pix2pix.png", marge_img)
 
     return self.__img
