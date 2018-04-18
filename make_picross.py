@@ -12,7 +12,7 @@ if __name__ == '__main__' :
 
   parser = argparse.ArgumentParser(
     prog='Pic_picross', # プログラム名
-    usage='$python3 make_picross.py <image file path> <picross_size>', # プログラムの利用方法
+    usage='$python3 make_picross.py [option] <image file path> <picross_size>', # プログラムの利用方法
     description='description', # 引数のヘルプの前に表示
     epilog='end', # 引数のヘルプの後で表示
     add_help=True, # -h/–help オプションの追加
@@ -24,7 +24,7 @@ if __name__ == '__main__' :
   parser.add_argument('-r', '--reverse', help='Reverse white and black area', action='store_true')
   parser.add_argument('-b', '--binarize', help='Binarize the image', action='store_true')
   parser.add_argument('-s', '--show', help='Show the image and save the dot image', action='store_true')
-  parser.add_argument('-t', '--times', help='Set a blur time for image', type=int)
+  parser.add_argument('-t', '--time', help='Set a blur time for image', type=int)
 
   # 引数の解析
   args = parser.parse_args()
@@ -43,14 +43,14 @@ if __name__ == '__main__' :
     reverse_flag = True
   if args.show:
     show_flag = True
-  if args.times:
-    blur_times = 0 if not type(args.times) == int else args.times
+  if args.time:
+    blur_times = 0 if not type(args.time) == int else args.time
 
   img_path = args.image_file_path
   size = args.picross_size
 
   #画像を0と255の二値データに変換
-  img_processor = ImageProcessing(img_path, blur_times, size, 0.0002)
+  img_processor = ImageProcessing(img_path, blur_times, size, 0.05)
   img_processor.set_flags(binarize_flag, reverse_flag, show_flag)
   mosaic_img = img_processor.convert_mosaic()
 

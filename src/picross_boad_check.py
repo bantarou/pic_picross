@@ -161,7 +161,7 @@ class boad_check:
             else:
               break
           else:
-            if hint[hint_num] == continue_cnt and max_span <= hint[hint_num]:
+            if hint[hint_num] == continue_cnt and max_span < hint[hint_num]:
               if start_num - 1 >= 0:
                 line[start_num - 1] = co.NO_FILLED_NUM
               line[i] = co.NO_FILLED_NUM

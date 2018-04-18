@@ -12,7 +12,7 @@ pic_picross
 - Numpy
 
 ## Usage
-`$ python3 make_picross.py <image_file_path> <picorss_size>`
+`$ python3 make_picross.py [option] <image_file_path> <picorss_size>`
 
 コードを実行するとimgディレクトリが生成され、それ以下に作成したピクロスの画像データが保存されます。
 
