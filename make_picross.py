@@ -50,7 +50,7 @@ if __name__ == '__main__' :
   size = args.picross_size
 
   #画像を0と255の二値データに変換
-  img_processor = ImageProcessing(img_path, blur_times, size, 0.05)
+  img_processor = ImageProcessing(img_path, blur_times, size, 0.001)
   img_processor.set_flags(binarize_flag, reverse_flag, show_flag)
   mosaic_img = img_processor.convert_mosaic()
 

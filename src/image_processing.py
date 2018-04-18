@@ -43,6 +43,8 @@ class ImageProcessing:
     dilate_img = cv2.dilate(self.__img, kernel, iterations=1)
     self.__img = cv2.absdiff(self.__img, dilate_img)
     self.__img = cv2.bitwise_not(self.__img)
+    self.__img = cv2.threshold(self.__img, 220, 255, cv2.THRESH_BINARY_INV)[1]
+
   #画像のネガポジ反転用関数
   def __reverse_bw(self):
     self.__img = 255 - self.__img
@@ -78,6 +80,7 @@ class ImageProcessing:
     if not self.__binarize_flag:
       #画像のエッジを抽出
       self.__extract_edge()
+      self.__reverse_bw()
 
     #モザイク処理前の画像を表示
     if self.__show_flag:
